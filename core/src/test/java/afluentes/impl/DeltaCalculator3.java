@@ -2,8 +2,6 @@ package afluentes.impl;
 
 import afluentes.api.IEvaluation;
 import afluentes.api.IEvaluator2;
-import afluentes.impl.Constant;
-import afluentes.impl.SynchronousEvaluator2;
 
 public class DeltaCalculator3 {
     public double calculateDelta(double a, double b, double c) {

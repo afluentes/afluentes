@@ -2,7 +2,6 @@ package afluentes.impl;
 
 import afluentes.api.IEvaluation;
 import afluentes.api.IEvaluator2;
-import afluentes.impl.Constant;
 
 public class DeltaCalculator5 {
     private ICalculatorStub calculator;
