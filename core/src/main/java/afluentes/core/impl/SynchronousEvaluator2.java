@@ -15,7 +15,7 @@ public class SynchronousEvaluator2<X1, X2, Y> implements IEvaluator2<X1, X2, Y> 
     }
 
     @Override
-    public IEvaluation<Y> y(IEvaluation<X1> x1, IEvaluation<X2> x2) {
+    public IEvaluation<Y> y(final IEvaluation<X1> x1, final IEvaluation<X2> x2) {
         return new SynchronousEvaluation2<>(f, x1, x2);
     }
 }

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>afluentes</groupId>
+		<artifactId>afluentes-parent</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+		<relativePath>../../parent/pom.xml</relativePath>
+	</parent>
+
+	<artifactId>afluentes-middleware-compiler</artifactId>
+
+	<packaging>jar</packaging>
+	
+	<properties>
+		<junit.version>4.11</junit.version>
+		<org.freemarker.version>2.3.19</org.freemarker.version>	
+	</properties>
+	
+	<dependencies>
+<!-- compile -->	
+		<dependency>
+			<groupId>org.freemarker</groupId>
+			<artifactId>freemarker</artifactId>
+			<version>${org.freemarker.version}</version>
+			<scope>compile</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>afluentes</groupId>
+			<artifactId>afluentes-middleware-idl</artifactId>
+			<version>${project.version}</version>
+			<scope>compile</scope>
+		</dependency>
+<!-- compile -->
+
+<!-- test -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+<!-- test -->
+    </dependencies>		
+</project>

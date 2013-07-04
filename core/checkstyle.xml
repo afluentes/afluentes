@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE module PUBLIC "-//Puppy Crawl//DTD Check Configuration 1.2//EN" "http://www.puppycrawl.com/dtds/configuration_1_2.dtd">
+
+<module name="Checker">
+    <module name="SuppressWithNearbyCommentFilter">
+        <property name="commentFormat" value="CHECKSTYLE IGNORE THIS LINE"/>
+        <property name="checkFormat" value=".*"/>
+        <property name="influenceFormat" value="0"/>
+    </module>
+    <module name="TreeWalker">
+        <module name="FinalLocalVariable">
+            <property name="tokens" value="PARAMETER_DEF, VARIABLE_DEF"/>
+        </module>
+        <module name="FinalParameters">
+            <property name="tokens" value="CTOR_DEF, METHOD_DEF, LITERAL_CATCH"/>
+        </module>
+    </module>
+</module>
