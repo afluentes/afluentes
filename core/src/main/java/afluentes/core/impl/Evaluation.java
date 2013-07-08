@@ -5,6 +5,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import afluentes.core.api.IAsynchronousFunction0;
+import afluentes.core.api.IAsynchronousRunnable;
 import afluentes.core.api.ICallback;
 import afluentes.core.api.IEvaluation;
 import afluentes.core.api.ISynchronousFunction0;
@@ -78,19 +79,21 @@ abstract class Evaluation<Y> implements IEvaluation<Y>, ICallback<Y> {
     protected abstract void clearArguments();
 
     @Override
-	public IEvaluation<Void> then(final IAsynchronousFunction0<Void> f) {
-		if (f == null) {
-			throw new IllegalArgumentException("f == null");
+	public IEvaluation<Void> then(final IAsynchronousRunnable r) {
+		if (r == null) {
+			throw new IllegalArgumentException("r == null");
 		}
-		return new AsynchronousEvaluation1<>(new AsynchronousThen<Y>(f), this);
+		IAsynchronousFunction0<Void> f = new IAsynchronousRunnableAdapter(r);
+		return new AsynchronousEvaluation1<>(new IAsynchronousFunction0Adapter<Y>(f), this);
 	}
 
     @Override
-	public IEvaluation<Void> then(final ISynchronousFunction0<Void> f) {
-		if (f == null) {
-			throw new IllegalArgumentException("f == null");
+	public IEvaluation<Void> then(final Runnable r) {
+		if (r == null) {
+			throw new IllegalArgumentException("r == null");
 		}
-		return new SynchronousEvaluation1<>(new SynchronousThen<Y>(f), this);
+		ISynchronousFunction0<Void> f = new RunnableAdapter(r);
+		return new SynchronousEvaluation1<>(new ISynchronousFunction0Adapter<Y>(f), this);
     }
 
     @Override

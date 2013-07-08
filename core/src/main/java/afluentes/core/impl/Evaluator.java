@@ -1,23 +1,22 @@
 package afluentes.core.impl;
 
-import afluentes.core.api.IAsynchronousFunction0;
+import afluentes.core.api.IAsynchronousRunnable;
 import afluentes.core.api.IEvaluation;
-import afluentes.core.api.ISynchronousFunction0;
 import afluentes.core.api.ISynchronousFunction2;
 
 public class Evaluator {
-	public static IEvaluation<Void> f(final IAsynchronousFunction0<Void> f) {
-		if (f == null) {
-			throw new IllegalArgumentException("f == null");
+	public static IEvaluation<Void> f(final IAsynchronousRunnable r) {
+		if (r == null) {
+			throw new IllegalArgumentException("r == null");
 		}
-		return new AsynchronousEvaluation0<>(f);
+		return new AsynchronousEvaluation0<>(new IAsynchronousRunnableAdapter(r));
 	}
 
-	public static IEvaluation<Void> f(final ISynchronousFunction0<Void> f) {
-		if (f == null) {
-			throw new IllegalArgumentException("f == null");
-		}		
-		return new SynchronousEvaluation0<>(f);
+	public static IEvaluation<Void> f(final Runnable r) {
+		if (r == null) {
+			throw new IllegalArgumentException("r == null");
+		}
+		return new SynchronousEvaluation0<>(new RunnableAdapter(r));
 	}
 	
 	private static ISynchronousFunction2<Void, Void, Void> join = new ISynchronousFunction2<Void, Void, Void>() {
