@@ -8,12 +8,20 @@
 	<version>0.0.1-SNAPSHOT</version>
 
 	<packaging>pom</packaging>
+	
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		
+		<org.apache.maven.plugins.version>2.4</org.apache.maven.plugins.version>
+    </properties>	
 
 	<build>
 		<pluginManagement>
     		<plugins>
     			<plugin>
+    				<groupId>org.apache.maven.plugins</groupId>
         			<artifactId>maven-compiler-plugin</artifactId>
+        			<version>${org.apache.maven.plugins.version}</version>
         			<configuration>
         				<source>1.7</source>
           				<target>1.7</target>        			
@@ -28,8 +36,4 @@
     		</plugins>
     	</pluginManagement>
   	</build>
-
-	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
 </project>
