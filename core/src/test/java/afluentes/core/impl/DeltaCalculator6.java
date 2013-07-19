@@ -16,44 +16,28 @@ public class DeltaCalculator6 {
 			Evaluator.f(new IAsynchronousRunnable() {
 				@Override
 				public void run(ICallback<Void> callback) {
-					try {
-						b2.set(b * b);
-						callback.y(null);
-					} finally {
-						callback.c();
-					}						
+					b2.set(b * b);
+					callback.y(null);
 				}			
 			}),
 			Evaluator.f(new IAsynchronousRunnable() {
 				@Override
 				public void run(ICallback<Void> callback) {
-					try {					
-						ac.set(a * c);
-						callback.y(null);
-					} finally {
-						callback.c();
-					}											
+					ac.set(a * c);
+					callback.y(null);
 				}
 			}).then(new IAsynchronousRunnable() {
 				@Override
 				public void run(ICallback<Void> callback) {
-					try {					
-						_4ac.set(4 * ac.get());
-						callback.y(null);
-					} finally {
-						callback.c();
-					}																	
+					_4ac.set(4 * ac.get());
+					callback.y(null);
 				}
 			})				
 		).then(new IAsynchronousRunnable() {
 			@Override
 			public void run(ICallback<Void> callback) {
-				try {
-					b2_4ac.set(b2.get() - _4ac.get());
-					callback.y(null);
-				} finally {
-					callback.c();
-				}																
+				b2_4ac.set(b2.get() - _4ac.get());
+				callback.y(null);
 			}
 		}).y();
 

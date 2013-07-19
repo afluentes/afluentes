@@ -22,23 +22,37 @@ public class DeltaCalculator4 {
     
     private IEvaluator2<Double, Double, Double> subtraction = new AsynchronousEvaluator2<>(new IAsynchronousFunction2<Double, Double, Double>() {
 		@Override
-		public void y(Double x1, Double x2, ICallback<Double> callback) {
-			try {
-				callback.y(x1 - x2);
-			} finally {
-				callback.c();
-			}
+		public void y(final Double x1, final Double x2, final ICallback<Double> callback) {
+			new Thread() {
+				public void run() {
+					callback.y(x1 - x2);					
+				}
+			}.start();			
 		}
 	});
 
+    private IEvaluator2<Double, Double, Double> sub2 = 
+    	    new AsynchronousEvaluator2<>(
+    	      new IAsynchronousFunction2<Double, Double, Double>() {
+    	        @Override
+    	        public void y(final Double x1, final Double x2, final ICallback<Double> callback) {
+    	          new Thread() {
+    	            public void run() {
+    	              callback.y(x1 - x2);					
+    	            }
+    	          }.start();			
+    	        }
+    	      }
+    	    );  
+    	    
     private IEvaluator2<Double, Double, Double> multiplication = new AsynchronousEvaluator2<>(new IAsynchronousFunction2<Double, Double, Double>() {
 		@Override
-		public void y(Double x1, Double x2, ICallback<Double> callback) {
-			try {
-				callback.y(x1 * x2);
-			} finally {
-				callback.c();
-			}
+		public void y(final Double x1, final Double x2, final ICallback<Double> callback) {
+			new Thread(new Runnable() {
+				public void run() {
+					callback.y(x1 * x2);					
+				}
+			}).start();			
 		}
 	});
     

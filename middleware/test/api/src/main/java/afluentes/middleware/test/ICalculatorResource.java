@@ -10,20 +10,23 @@ import javax.ws.rs.core.MediaType;
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public interface ICalculatorResource {
-	@GET
-	@Path("sum")
-	double sum(@QueryParam("x") double x, @QueryParam("y") double y);
+   @GET
+   @Path("sum")
+   public double sum(@QueryParam("x") double x,
+                     @QueryParam("y") double y);
 
-	@GET
-	@Path("difference")
-	double difference(@QueryParam("x") double x, @QueryParam("y") double y);
+   @GET
+   @Path("difference")
+   public double difference(@QueryParam("x") double x,                   
+                            @QueryParam("y") double y);
 
-	@GET
-	@Path("product")
-	double product(@QueryParam("x") double x, @QueryParam("y") double y);
+   @GET
+   @Path("product")
+   public double product(@QueryParam("x") double x, 
+                         @QueryParam("y") double y);
 
-	@GET
-	@Path("quotient")
-	double quotient(@QueryParam("x") double x, @QueryParam("y") double y);
-
+   @GET
+   @Path("quotient")
+   public double quotient(@QueryParam("x") double x, 
+                          @QueryParam("y") double y);
 }

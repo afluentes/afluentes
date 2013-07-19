@@ -16,19 +16,11 @@ public class ICallbackAdapter<Y> implements InvocationCallback<Y> {
 
 	@Override
 	public void completed(Y response) {
-		try {
-			callback.y(response);
-		} finally {
-			callback.c();
-		}
+		callback.y(response);
 	}
 
 	@Override
 	public void failed(Throwable throwable) {
-		try {
-			callback.t(throwable);
-		} finally {
-			callback.c();
-		}		
+		callback.t(throwable);
 	}
 }

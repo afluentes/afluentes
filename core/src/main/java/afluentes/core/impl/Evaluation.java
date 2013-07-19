@@ -99,15 +99,16 @@ abstract class Evaluation<Y> implements IEvaluation<Y>, ICallback<Y> {
     @Override
     public void y(final Y y) {
         this.y = y;
+        c();
     }
 
     @Override
     public void t(final Throwable t) {
         this.t = t;
+        c();
     }
 
-    @Override
-    public void c() {
+    protected void c() {
         status = EVALUATED;
         try {
             queue.add(this);
