@@ -3,6 +3,7 @@ package afluentes.core.impl;
 import java.util.Stack;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 import afluentes.core.api.IAsynchronousFunction0;
 import afluentes.core.api.IAsynchronousRunnable;
@@ -26,7 +27,7 @@ abstract class Evaluation<Y> implements IEvaluation<Y>, ICallback<Y> {
     }
 
     @Override
-    public Y y() {
+    public Y y(long timeout, TimeUnit unit) {
         if (status == EVALUATING) {
             throw new IllegalStateException("status == Status.EVALUATING");
         }
@@ -51,7 +52,10 @@ abstract class Evaluation<Y> implements IEvaluation<Y>, ICallback<Y> {
                 if (queue != null) {
                     Evaluation<?> evaluation;
                     try {
-                        evaluation = queue.take();
+                        evaluation = queue.poll(timeout, unit);
+                        if (evaluation == null) {
+                        	throw new RuntimeException("Timed out");
+                        }
                     } catch (final InterruptedException e) {
                         throw new RuntimeException(e);
                     }
@@ -83,7 +87,7 @@ abstract class Evaluation<Y> implements IEvaluation<Y>, ICallback<Y> {
 		if (r == null) {
 			throw new IllegalArgumentException("r == null");
 		}
-		IAsynchronousFunction0<Void> f = new IAsynchronousRunnableAdapter(r);
+		final IAsynchronousFunction0<Void> f = new IAsynchronousRunnableAdapter(r);
 		return new AsynchronousEvaluation1<>(new IAsynchronousFunction0Adapter<Y>(f), this);
 	}
 
@@ -92,7 +96,7 @@ abstract class Evaluation<Y> implements IEvaluation<Y>, ICallback<Y> {
 		if (r == null) {
 			throw new IllegalArgumentException("r == null");
 		}
-		ISynchronousFunction0<Void> f = new RunnableAdapter(r);
+		final ISynchronousFunction0<Void> f = new RunnableAdapter(r);
 		return new SynchronousEvaluation1<>(new ISynchronousFunction0Adapter<Y>(f), this);
     }
 

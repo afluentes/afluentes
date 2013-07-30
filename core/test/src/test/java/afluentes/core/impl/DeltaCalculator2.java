@@ -2,7 +2,6 @@ package afluentes.core.impl;
 
 import afluentes.core.api.ISynchronousFunction2;
 
-
 public class DeltaCalculator2 {
     public double calculateDelta(final double a, final double b, final double c) {
         return subtraction.y(multiplication.y(b, b), multiplication.y(4.0, multiplication.y(a, c)));

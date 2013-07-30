@@ -12,7 +12,7 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		
-		<org.apache.maven.plugins.version>2.4</org.apache.maven.plugins.version>
+		<maven-compiler-plugin.version>2.4</maven-compiler-plugin.version>
     </properties>	
 
 	<build>
@@ -21,7 +21,7 @@
     			<plugin>
     				<groupId>org.apache.maven.plugins</groupId>
         			<artifactId>maven-compiler-plugin</artifactId>
-        			<version>${org.apache.maven.plugins.version}</version>
+        			<version>${maven-compiler-plugin.version}</version>
         			<configuration>
         				<source>1.7</source>
           				<target>1.7</target>        			

@@ -21,7 +21,7 @@ public class Evaluator {
 
 	private static ISynchronousFunction2<Void, Void, Void> join = new ISynchronousFunction2<Void, Void, Void>() {
 		@Override
-		public Void y(Void x1, Void x2) {
+		public Void y(final Void x1, final Void x2) {
 			return null;
 		}
 	};

@@ -1,5 +1,6 @@
 package afluentes.core.impl;
 
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 import afluentes.core.api.IAsynchronousRunnable;
@@ -28,18 +29,28 @@ public class DeltaCalculator6 {
 				}
 			}).then(new IAsynchronousRunnable() {
 				@Override
-				public void run(ICallback<Void> callback) {
-					_4ac.set(4 * ac.get());
-					callback.y(null);
+				public void run(final ICallback<Void> callback) {
+					new Thread() {
+						@Override
+						public void run() {
+							_4ac.set(4 * ac.get());
+							callback.y(null);							
+						}
+					}.start();
 				}
 			})				
 		).then(new IAsynchronousRunnable() {
 			@Override
-			public void run(ICallback<Void> callback) {
-				b2_4ac.set(b2.get() - _4ac.get());
-				callback.y(null);
+			public void run(final ICallback<Void> callback) {
+				new Thread() {
+					@Override
+					public void run() {
+						b2_4ac.set(b2.get() - _4ac.get());
+						callback.y(null);
+					}
+				}.start();						
 			}
-		}).y();
+		}).y(10, TimeUnit.SECONDS);
 
 		return b2_4ac.get();
     }

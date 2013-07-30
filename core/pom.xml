@@ -10,6 +10,7 @@
 	<packaging>pom</packaging>
 	
 	<modules>
+		<module>article</module>
 		<module>core</module>
 		<module>generator</module>
 		<module>test</module>

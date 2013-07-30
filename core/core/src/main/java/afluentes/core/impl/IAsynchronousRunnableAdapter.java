@@ -12,7 +12,7 @@ class IAsynchronousRunnableAdapter implements IAsynchronousFunction0<Void> {
 	}
 
 	@Override
-	public void y(ICallback<Void> callback) {
+	public void y(final ICallback<Void> callback) {
 		runnable.run(callback);
 	}
 }

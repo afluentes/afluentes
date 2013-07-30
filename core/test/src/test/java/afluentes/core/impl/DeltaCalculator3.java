@@ -1,13 +1,14 @@
 package afluentes.core.impl;
 
+import java.util.concurrent.TimeUnit;
+
 import afluentes.core.api.IEvaluation;
 import afluentes.core.api.IEvaluator2;
 import afluentes.core.api.ISynchronousFunction2;
 
-
 public class DeltaCalculator3 {
     public double calculateDelta(final double a, final double b, final double c) {
-        return calculateDelta(new Constant<>(a), new Constant<>(b), new Constant<>(c)).y();
+        return calculateDelta(new Constant<>(a), new Constant<>(b), new Constant<>(c)).y(10, TimeUnit.SECONDS);
     }
 
     public IEvaluation<Double> calculateDelta(IEvaluation<Double> a, IEvaluation<Double> b, IEvaluation<Double> c) {

@@ -13,5 +13,6 @@
 		<module>api</module>
 		<module>client</module>
 		<module>impl</module>
+		<module>delta</module>
     </modules>
 </project>

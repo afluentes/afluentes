@@ -1,5 +1,6 @@
 package afluentes.core.impl;
 
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class DeltaCalculator5 {
@@ -32,7 +33,7 @@ public class DeltaCalculator5 {
 			public void run() {
 				b2_4ac.set(b2.get() - _4ac.get());
 			}
-		}).y();
+		}).y(10, TimeUnit.SECONDS);
 
 		return b2_4ac.get();
     }
