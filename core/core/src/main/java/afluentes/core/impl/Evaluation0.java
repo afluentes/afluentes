@@ -2,6 +2,8 @@ package afluentes.core.impl;
 
 import java.util.Stack;
 
+import afluentes.core.api.IEvaluation;
+
 abstract class Evaluation0<Y> extends Evaluation<Y> {
 
     Evaluation0() {

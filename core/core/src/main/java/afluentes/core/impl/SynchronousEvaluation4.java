@@ -1,7 +1,7 @@
 package afluentes.core.impl;
 
-import afluentes.core.api.IEvaluation;
 import afluentes.core.api.ISynchronousFunction4;
+import afluentes.core.api.IEvaluation;
 
 class SynchronousEvaluation4<X1, X2, X3, X4, Y> extends Evaluation4<X1, X2, X3, X4, Y> {
     private final ISynchronousFunction4<X1, X2, X3, X4, Y> f;

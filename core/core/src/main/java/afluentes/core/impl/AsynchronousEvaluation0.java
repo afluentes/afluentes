@@ -1,6 +1,7 @@
 package afluentes.core.impl;
 
 import afluentes.core.api.IAsynchronousFunction0;
+import afluentes.core.api.IEvaluation;
 
 class AsynchronousEvaluation0<Y> extends Evaluation0<Y> {
     private final IAsynchronousFunction0<Y> f;

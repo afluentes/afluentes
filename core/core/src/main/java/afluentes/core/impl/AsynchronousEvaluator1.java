@@ -1,8 +1,8 @@
 package afluentes.core.impl;
 
-import afluentes.core.api.IAsynchronousFunction1;
 import afluentes.core.api.IEvaluation;
 import afluentes.core.api.IEvaluator1;
+import afluentes.core.api.IAsynchronousFunction1;
 
 public class AsynchronousEvaluator1<X1, Y> implements IEvaluator1<X1, Y> {
     private final IAsynchronousFunction1<X1, Y> f;

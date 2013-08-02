@@ -7,19 +7,19 @@
 		<groupId>afluentes</groupId>
 		<artifactId>afluentes-parent</artifactId>		
 		<version>0.0.1-SNAPSHOT</version>
-		<relativePath>../../parent</relativePath>	
+		<relativePath>../../../parent</relativePath>	
 	</parent>
 	
-	<artifactId>afluentes-core-test</artifactId>
+	<artifactId>afluentes-core-article-example</artifactId>
 
 	<packaging>jar</packaging>	
 	
 	<dependencies>
 <!-- compile -->	
 		<dependency>
-			<groupId>afluentes</groupId>
-			<artifactId>afluentes-core</artifactId>
-			<version>${project.version}</version>
+			<groupId>com.typesafe.akka</groupId>
+  			<artifactId>akka-actor_2.10</artifactId>
+  			<version>2.2.0</version>
 		</dependency>
 <!-- compile -->		
 	</dependencies>
