@@ -1,4 +1,4 @@
-package afluentes.core.article;
+package afluentes.core.article.example;
 
 public class Calculator0 {
 	public double delta(double a, double b, double c) {

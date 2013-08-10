@@ -1,8 +1,8 @@
 package afluentes.core.impl;
 
+import afluentes.core.api.IAsynchronousFunction3;
 import afluentes.core.api.IEvaluation;
 import afluentes.core.api.IEvaluator3;
-import afluentes.core.api.IAsynchronousFunction3;
 
 public class AsynchronousEvaluator3<X1, X2, X3, Y> implements IEvaluator3<X1, X2, X3, Y> {
     private final IAsynchronousFunction3<X1, X2, X3, Y> f;

@@ -17,6 +17,8 @@ public class Generator {
 		generateIAsynchronousRunnable(templates);
 		generateICallback(templates);
 		generateIEvaluation(templates);
+		generateIReduce(templates);
+		generateIReduceEvaluator(templates);
 		
 		// Implementation
 		generateConstant(templates);		
@@ -25,7 +27,9 @@ public class Generator {
 		generateIAsynchronousFunction0Adapter(templates);
 		generateIAsynchronousRunnableAdapter(templates);
 		generateISynchronousFunction0Adapter(templates);
-		generateRunnableAdapter(templates);		
+		generateReduceEvaluation(templates);
+		generateReduceEvaluator(templates);		
+		generateRunnableAdapter(templates);
 		
 		for (int arity = 0; arity <= maximum; ++arity) {
 			// API			
@@ -84,6 +88,20 @@ public class Generator {
 		FileUtils.write(file, template.render(), ENCODING);
 	}
 	
+	private void generateIReduce(STGroupDir templates) throws IOException {
+		ST template = templates.getInstanceOf("IReduce");		
+
+		File file = newFile("afluentes/core/api/IReduce.java");
+		FileUtils.write(file, template.render(), ENCODING);
+	}
+	
+	private void generateIReduceEvaluator(STGroupDir templates) throws IOException {
+		ST template = templates.getInstanceOf("IReduceEvaluator");		
+
+		File file = newFile("afluentes/core/api/IReduceEvaluator.java");
+		FileUtils.write(file, template.render(), ENCODING);
+	}		
+	
 	private void generateConstant(STGroupDir templates) throws IOException {
 		ST template = templates.getInstanceOf("Constant");
 
@@ -125,6 +143,20 @@ public class Generator {
 		File file = newFile("afluentes/core/impl/ISynchronousFunction0Adapter.java");
 		FileUtils.write(file, template.render(), ENCODING);
 	}
+	
+	private void generateReduceEvaluation(STGroupDir templates) throws IOException {
+		ST template = templates.getInstanceOf("ReduceEvaluation");
+
+		File file = newFile("afluentes/core/impl/ReduceEvaluation.java");
+		FileUtils.write(file, template.render(), ENCODING);
+	}
+	
+	private void generateReduceEvaluator(STGroupDir templates) throws IOException {
+		ST template = templates.getInstanceOf("ReduceEvaluator");
+
+		File file = newFile("afluentes/core/impl/ReduceEvaluator.java");
+		FileUtils.write(file, template.render(), ENCODING);
+	}		
 	
 	private void generateRunnableAdapter(STGroupDir templates) throws IOException {
 		ST template = templates.getInstanceOf("RunnableAdapter");
