@@ -8,7 +8,7 @@ import afluentes.core.api.IReduceEvaluator;
 
 public class ReduceEvaluator<X1, Y> implements IReduceEvaluator<X1, Y> {
 	private final IReduce<X1, Y> f;
-	
+
 	public ReduceEvaluator(final IReduce<X1, Y> f) {
 		if (f == null) {
         	throw new IllegalArgumentException("f == null");

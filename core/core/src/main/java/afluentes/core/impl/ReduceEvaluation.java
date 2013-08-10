@@ -10,11 +10,11 @@ import afluentes.core.api.IReduce;
 class ReduceEvaluation<X1, Y> extends Evaluation<Y> {
 	private final IReduce<X1, Y> f;
 	private List<Evaluation<X1>> x1s;
-		
+
 	@SuppressWarnings("unchecked")
 	ReduceEvaluation(final IReduce<X1, Y> f, final List<? extends IEvaluation<X1>> x1s) {
 		this.f = f;
-		
+
     	if (x1s == null) {
     		throw new IllegalArgumentException("x1s == null");
     	}

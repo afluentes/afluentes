@@ -29,6 +29,11 @@ abstract class Evaluation<Y> implements IEvaluation<Y>, ICallback<Y> {
     }
     
     @Override
+    public Y y() {
+    	return y(0, null); 
+    }    
+    
+    @Override
     public Y y(long timeout, TimeUnit unit) {
         if (status == EVALUATING) {
             throw new IllegalStateException("status == Status.EVALUATING");
@@ -54,10 +59,14 @@ abstract class Evaluation<Y> implements IEvaluation<Y>, ICallback<Y> {
                 if (queue != null) {
                     Evaluation<?> evaluation;
                     try {
-                        evaluation = queue.poll(timeout, unit);
-                        if (evaluation == null) {
-                        	throw new RuntimeException("Timed out");
-                        }
+                    	if (timeout <= 0) {
+                    		evaluation = queue.take();
+                    	} else {                    	
+	                        evaluation = queue.poll(timeout, unit);
+	                        if (evaluation == null) {
+	                        	throw new RuntimeException("Timed out");
+	                        }
+						}
                     } catch (final InterruptedException e) {
                         throw new RuntimeException(e);
                     }
