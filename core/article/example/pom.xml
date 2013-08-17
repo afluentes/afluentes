@@ -17,9 +17,9 @@
 	<dependencies>
 <!-- compile -->	
 		<dependency>
-			<groupId>com.typesafe.akka</groupId>
-  			<artifactId>akka-actor_2.10</artifactId>
-  			<version>2.2.0</version>
+			<groupId>afluentes</groupId>
+			<artifactId>afluentes-core</artifactId>
+			<version>${project.version}</version>
 		</dependency>
 <!-- compile -->		
 	</dependencies>

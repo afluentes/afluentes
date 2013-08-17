@@ -33,8 +33,10 @@ public class Generator {
 		
 		for (int arity = 0; arity <= maximum; ++arity) {
 			// API			
-			generateIAsynchronousFunction(templates, arity);
-			generateIEvaluator(templates, arity);			
+			generateIAsyncFn(templates, arity);
+			generateIAsynchronousFunction(templates, arity);			
+			generateIEvaluator(templates, arity);
+			generateISyncFn(templates, arity);
 			generateISynchronousFunction(templates, arity);
 			
 			// Implementation
@@ -163,7 +165,17 @@ public class Generator {
 
 		File file = newFile("afluentes/core/impl/RunnableAdapter.java");
 		FileUtils.write(file, template.render(), ENCODING);
-	}	
+	}
+	
+	private void generateIAsyncFn(STGroupDir templates, int arity) throws IOException {
+		ST template = templates.getInstanceOf("IAsyncFn");		
+		template.add("arity", arity);
+
+		addParameters(template, arity);
+
+		File file = newFile("afluentes/core/api/IAsyncFn" + arity + ".java");
+		FileUtils.write(file, template.render(), ENCODING);
+	}			
 			
 	private void generateIAsynchronousFunction(STGroupDir templates, int arity) throws IOException {
 		ST template = templates.getInstanceOf("IAsynchronousFunction");		
@@ -193,7 +205,17 @@ public class Generator {
 
 		File file = newFile("afluentes/core/api/ISynchronousFunction" + arity + ".java");
 		FileUtils.write(file, template.render(), ENCODING);
-	}	
+	}
+	
+	private void generateISyncFn(STGroupDir templates, int arity) throws IOException {
+		ST template = templates.getInstanceOf("ISyncFn");		
+		template.add("arity", arity);
+
+		addParameters(template, arity);
+
+		File file = newFile("afluentes/core/api/ISyncFn" + arity + ".java");
+		FileUtils.write(file, template.render(), ENCODING);
+	}				
 							
 	private void generateAsynchronousEvaluation(STGroupDir templates, int arity) throws IOException {
 		ST template = templates.getInstanceOf("AsynchronousEvaluation");		

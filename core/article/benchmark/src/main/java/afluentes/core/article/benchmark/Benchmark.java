@@ -39,7 +39,7 @@ class Benchmark {
 	void execute(AbstractDao dao, ILoader loader, Marshaller marshaller) {
 		for (int i = 0; i < 3; ++i) {
 		 	long t = System.currentTimeMillis();
-		 	for (int j = 0; j < 1000; ++j) {
+		 	for (int j = 0; j < 10000; ++j) {
 		 		List<Message> messages = dao.getMessages();
 		 		loader.loadMessages(messages);
 		 		marshaller.marshallMessages(messages);
