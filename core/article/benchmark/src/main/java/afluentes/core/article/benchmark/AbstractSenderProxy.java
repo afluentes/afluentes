@@ -47,3 +47,21 @@ class FunctionalSenderProxy extends AbstractSenderProxy {
 		return evaluation.y();
 	}
 }
+
+class SenderProxy implements IUser {
+  IEvaluation<IUser> evaluation;
+	
+  @Override
+  public int getId() {
+    return getSender().getId();
+  }
+
+  @Override
+  public String getName() {
+    return getSender().getName();
+  }
+	
+  IUser getSender() {
+    return evaluation.y();
+  }
+}
