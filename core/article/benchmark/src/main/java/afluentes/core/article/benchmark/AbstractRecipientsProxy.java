@@ -126,12 +126,12 @@ abstract class AbstractRecipientsProxy implements List<IUser> {
 	}
 }
 
-class ImperativeRecipientsProxy extends AbstractRecipientsProxy {
+class StandardRecipientsProxy extends AbstractRecipientsProxy {
 	AbstractDao dao;
 	int messageId;
 	List<IUser> recipients;
 
-	ImperativeRecipientsProxy(AbstractDao dao, int messageId) {
+	StandardRecipientsProxy(AbstractDao dao, int messageId) {
 		this.dao = dao;
 		this.messageId = messageId;
 	}
@@ -145,10 +145,10 @@ class ImperativeRecipientsProxy extends AbstractRecipientsProxy {
 	}
 }
 
-class FunctionalRecipientsProxy extends AbstractRecipientsProxy {
+class AfluentesRecipientsProxy extends AbstractRecipientsProxy {
 	IEvaluation<List<IUser>> evaluation;
 
-	FunctionalRecipientsProxy(IEvaluation<List<IUser>> evaluation) {
+	AfluentesRecipientsProxy(IEvaluation<List<IUser>> evaluation) {
 		this.evaluation = evaluation;
 	}
 

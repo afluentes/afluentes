@@ -34,8 +34,8 @@ abstract class AbstractDao {
 		this.ds = ds;		
 	}
 
-	List<Message> getMessages() {
-		String sql = "select * from MESSAGE";
+	List<Message> getMessages(int senderId) {
+		String sql = "select ID, SUBJECT, BODY, SENDER_ID from MESSAGE where SENDER_ID = " + senderId;
 		try (Connection c = ds.getConnection();
 				Statement s = c.createStatement();
 				ResultSet rs = s.executeQuery(sql)) {
@@ -174,6 +174,6 @@ class FunctionalDao extends AbstractDao {
 
 	@Override
 	List<IUser> getRecipientsProxy(int messageId) {
-		return new FunctionalRecipientsProxy(getRecipients.y(new Constant<>(messageId)));
+		return new AfluentesRecipientsProxy(getRecipients.y(new Constant<>(messageId)));
 	}
 }

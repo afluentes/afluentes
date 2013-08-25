@@ -13,13 +13,13 @@ import afluentes.core.impl.Constant;
 import afluentes.core.impl.ReduceEvaluator;
 import afluentes.core.impl.SynchronousEvaluator3;
 
-class FunctionalLoader implements ILoader {
+class AfluentesLoader implements ILoader {
   @Override
   public void loadMessages(List<Message> messages) {
     List<IEvaluation<Message>> evaluations = new ArrayList<>(messages.size());
     for (Message message : messages) {
       FunctionalSenderProxy senderProxy = (FunctionalSenderProxy) message.sender;
-      FunctionalRecipientsProxy recipientsProxy = (FunctionalRecipientsProxy) message.recipients;
+      AfluentesRecipientsProxy recipientsProxy = (AfluentesRecipientsProxy) message.recipients;
       IEvaluation<Message> evaluation = loadMessage.y(new Constant<>(message), senderProxy.evaluation, recipientsProxy.evaluation); 
       evaluations.add(evaluation);
     }
@@ -46,7 +46,7 @@ class Loader {
     List<IEvaluation<Message>> evaluations = new ArrayList<>(messages.size());
     for (Message message : messages) {
       FunctionalSenderProxy senderProxy = (FunctionalSenderProxy) message.sender;
-      FunctionalRecipientsProxy recipientsProxy = (FunctionalRecipientsProxy) message.recipients;
+      AfluentesRecipientsProxy recipientsProxy = (AfluentesRecipientsProxy) message.recipients;
       IEvaluation<Message> evaluation = loadMessageFn.y(new Constant<>(message), senderProxy.evaluation,  
                                                         recipientsProxy.evaluation); 
       evaluations.add(evaluation);
