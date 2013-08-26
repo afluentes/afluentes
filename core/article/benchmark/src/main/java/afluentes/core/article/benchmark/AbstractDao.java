@@ -111,8 +111,8 @@ abstract class AbstractDao {
 	}
 }
 
-class ImperativeDao extends AbstractDao {
-	ImperativeDao(DataSource ds) {
+class StandardDao extends AbstractDao {
+	StandardDao(DataSource ds) {
 		super(ds);
 	}
 
@@ -127,14 +127,17 @@ class ImperativeDao extends AbstractDao {
 	}
 }
 
-class FunctionalDao extends AbstractDao {
+class AfluentesDao extends AbstractDao {
+	IAsynchronousFunction1<Integer, IUser> getUserFn;
 	IEvaluator1<Integer, IUser> getUser;
+	
+	IAsynchronousFunction1<Integer, List<IUser>> getRecipientsFn;	
 	IEvaluator1<Integer, List<IUser>> getRecipients;
 
-	FunctionalDao(final DataSource ds, final ExecutorService executor) {
+	AfluentesDao(final DataSource ds, final ExecutorService executor) {
 		super(ds);
 		
-		getUser = new AsynchronousEvaluator1<>(new IAsynchronousFunction1<Integer, IUser>() {
+		getUserFn = new IAsynchronousFunction1<Integer, IUser>() {
 			@Override
 			public void y(final Integer userId, final ICallback<IUser> callback) {
 				executor.execute(new Runnable() {
@@ -148,9 +151,10 @@ class FunctionalDao extends AbstractDao {
 					}					
 				});				
 			}
-		});
-
-		getRecipients = new AsynchronousEvaluator1<>(new IAsynchronousFunction1<Integer, List<IUser>>() {
+		};		
+		getUser = new AsynchronousEvaluator1<>(getUserFn);
+		
+		getRecipientsFn = new IAsynchronousFunction1<Integer, List<IUser>>() {
 			@Override
 			public void y(final Integer userId, final ICallback<List<IUser>> callback) {
 				executor.execute(new Runnable() {
@@ -162,18 +166,35 @@ class FunctionalDao extends AbstractDao {
 							callback.t(t);
 						}
 					}					
-				});				
+				});
 			}
-		});
+		};
+		getRecipients = new AsynchronousEvaluator1<>(getRecipientsFn);
 	}
 
 	@Override
 	IUser getSenderProxy(int senderId) {
-		return new FunctionalSenderProxy(getUser.y(new Constant<>(senderId)));
+		return new AfluentesSenderProxy(getUser.y(new Constant<>(senderId)));
 	}
 
 	@Override
 	List<IUser> getRecipientsProxy(int messageId) {
 		return new AfluentesRecipientsProxy(getRecipients.y(new Constant<>(messageId)));
+	}
+}
+
+class CallbackDao extends AfluentesDao {
+	CallbackDao(DataSource ds, ExecutorService executor) {
+		super(ds, executor);
+	}
+
+	@Override
+	IUser getSenderProxy(int senderId) {
+		return new CallbackSenderProxy(senderId);
+	}
+
+	@Override
+	List<IUser> getRecipientsProxy(int messageId) {
+		return new CallbackRecipientsProxy(messageId);
 	}
 }

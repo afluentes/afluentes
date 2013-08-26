@@ -2,9 +2,7 @@ package afluentes.core.article.benchmark;
 
 import afluentes.core.api.IEvaluation;
 
-abstract class AbstractSenderProxy implements IUser {
-	abstract IUser getSender();
-
+abstract class AbstractSenderProxy implements IUser {	
 	@Override
 	public int getId() {
 		return getSender().getId();
@@ -13,15 +11,17 @@ abstract class AbstractSenderProxy implements IUser {
 	@Override
 	public String getName() {
 		return getSender().getName();
-	}	
+	}
+	
+	abstract IUser getSender();	
 }
 
-class ImperativeSenderProxy extends AbstractSenderProxy {
+class StandardSenderProxy extends AbstractSenderProxy {
 	AbstractDao dao;
 	int senderId;
 	IUser sender;
 
-	ImperativeSenderProxy(AbstractDao dao, int senderId) {
+	StandardSenderProxy(AbstractDao dao, int senderId) {
 		this.dao = dao;
 		this.senderId = senderId;
 	}
@@ -35,10 +35,10 @@ class ImperativeSenderProxy extends AbstractSenderProxy {
 	}
 }
 
-class FunctionalSenderProxy extends AbstractSenderProxy {
+class AfluentesSenderProxy extends AbstractSenderProxy {
 	IEvaluation<IUser> evaluation;
 
-	FunctionalSenderProxy(IEvaluation<IUser> evaluation) {
+	AfluentesSenderProxy(IEvaluation<IUser> evaluation) {
 		this.evaluation = evaluation;
 	}
 
@@ -48,12 +48,29 @@ class FunctionalSenderProxy extends AbstractSenderProxy {
 	}
 }
 
+class CallbackSenderProxy extends AbstractSenderProxy {
+	int senderId;
+	volatile IUser sender;
+	
+	CallbackSenderProxy(int senderId) {
+		this.senderId = senderId;
+	}
+
+	@Override
+	IUser getSender() {
+		if (sender == null) {
+			throw new IllegalStateException("sender == null");
+		}
+		return sender;
+	}
+}
+
 class SenderProxy implements IUser {
   IEvaluation<IUser> evaluation;
 	
   @Override
   public int getId() {
-    return getSender().getId();
+	return getSender().getId();
   }
 
   @Override

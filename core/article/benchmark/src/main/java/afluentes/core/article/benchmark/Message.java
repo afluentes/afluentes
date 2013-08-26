@@ -5,7 +5,7 @@ import java.util.List;
 class Message {
 	int id;
 	String subject;
-	String body;	
+	String body;
 	IUser sender;
 	List<IUser> recipients;
 }

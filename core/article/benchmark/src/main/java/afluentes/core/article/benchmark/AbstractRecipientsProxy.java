@@ -157,3 +157,20 @@ class AfluentesRecipientsProxy extends AbstractRecipientsProxy {
 		return evaluation.y();
 	}
 }
+
+class CallbackRecipientsProxy extends AbstractRecipientsProxy {
+	int messageId;
+	volatile List<IUser> recipients;
+	
+	CallbackRecipientsProxy(int messageId) {
+		this.messageId = messageId;
+	}
+
+	@Override
+	List<IUser> getRecipients() {
+		if (recipients == null) {
+			throw new IllegalStateException("recipients == null");
+		}
+		return recipients;
+	}
+}

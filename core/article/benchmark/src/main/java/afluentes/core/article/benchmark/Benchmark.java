@@ -30,8 +30,13 @@ class Benchmark {
 
 		 	Marshaller marshaller = new Marshaller();
 
-		 	execute("imperative", maximumUserId, new ImperativeDao(ds), new StandardLoader(), marshaller);
-		 	execute("functional", maximumUserId, new FunctionalDao(ds, executor), new AfluentesLoader(), marshaller);
+/*		 	
+		 	execute("standard", maximumUserId, new StandardDao(ds), new StandardLoader(), marshaller);
+		 	execute("afluentes", maximumUserId, new AfluentesDao(ds, executor), new AfluentesLoader(), marshaller);
+*/
+		 	
+		 	AfluentesDao dao = new CallbackDao(ds, executor);
+		 	execute("callback", maximumUserId, dao, new CallbackLoader(dao), marshaller);
 		} finally {
 			if (executor != null) {
 				try {
@@ -56,17 +61,17 @@ class Benchmark {
 	}
 
 	void execute(String path, int maximumUserId, AbstractDao dao, ILoader loader, Marshaller marshaller) throws FileNotFoundException {
-		for (int i = 0; i < 10; ++i) {
+		for (int i = 0; i < 2; ++i) {
 			long[] ts = new long[1000];
 			long[] ns = new long[1000];
 
-			for (int userId = 1; userId <= maximumUserId; ++userId) {
+			for (int userId = 1; userId <= 1; ++userId) {
 		 		long t = System.nanoTime();
 		 		List<Message> messages = dao.getMessages(userId);
 		 		loader.loadMessages(messages);
-		 		marshaller.marshallMessages(messages);		 		
+		 		System.out.println(marshaller.marshallMessages(messages));		 		
 		 		t = System.nanoTime() - t;
-		 		
+
 		 		int index = messages.size(); 
 		 		ts[index] += t;
 		 		++ns[index];

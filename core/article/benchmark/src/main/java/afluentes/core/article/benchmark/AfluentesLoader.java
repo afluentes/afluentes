@@ -18,7 +18,7 @@ class AfluentesLoader implements ILoader {
   public void loadMessages(List<Message> messages) {
     List<IEvaluation<Message>> evaluations = new ArrayList<>(messages.size());
     for (Message message : messages) {
-      FunctionalSenderProxy senderProxy = (FunctionalSenderProxy) message.sender;
+      AfluentesSenderProxy senderProxy = (AfluentesSenderProxy) message.sender;
       AfluentesRecipientsProxy recipientsProxy = (AfluentesRecipientsProxy) message.recipients;
       IEvaluation<Message> evaluation = loadMessage.y(new Constant<>(message), senderProxy.evaluation, recipientsProxy.evaluation); 
       evaluations.add(evaluation);
@@ -45,7 +45,7 @@ class Loader {
   void loadMessages(List<Message> messages) {
     List<IEvaluation<Message>> evaluations = new ArrayList<>(messages.size());
     for (Message message : messages) {
-      FunctionalSenderProxy senderProxy = (FunctionalSenderProxy) message.sender;
+      AfluentesSenderProxy senderProxy = (AfluentesSenderProxy) message.sender;
       AfluentesRecipientsProxy recipientsProxy = (AfluentesRecipientsProxy) message.recipients;
       IEvaluation<Message> evaluation = loadMessageFn.y(new Constant<>(message), senderProxy.evaluation,  
                                                         recipientsProxy.evaluation); 

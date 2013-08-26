@@ -40,7 +40,7 @@ abstract class Evaluation<Y> implements IEvaluation<Y>, ICallback<Y> {
         }
         if (status == UNEVALUATED) {
             final Stack<Evaluation<?\>> stack = new Stack<Evaluation<?\>>();
-            final LinkedBlockingQueue<Evaluation<?\>> queue = new LinkedBlockingQueue<>();
+            final BlockingQueue<Evaluation<?\>> queue = new LinkedBlockingQueue<>();
             while (status != EVALUATED) {
                 stack.push(this);
                 while (!stack.isEmpty()) {
