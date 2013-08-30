@@ -17,23 +17,35 @@ class DatabaseLoader {
 	static final String BODY_100;
 	static final String BODY_500;
 	static final String BODY_1000;
+	static final String BODY_10000;
+	static final String BODY_20000;
+	static final String BODY_30000;
+	static final String BODY_40000;
+	static final String BODY_50000;
+	static final String BODY_60000;
 
 	static {
 		try {
 			BODY_100 = Resources.toString(Resources.getResource(DatabaseLoader.class, "body_100"), Charsets.UTF_8);
 			BODY_500 = Resources.toString(Resources.getResource(DatabaseLoader.class, "body_500"), Charsets.UTF_8);
 			BODY_1000 = Resources.toString(Resources.getResource(DatabaseLoader.class, "body_1000"), Charsets.UTF_8);
+			BODY_10000 = Resources.toString(Resources.getResource(DatabaseLoader.class, "body_10000"), Charsets.UTF_8);
+			BODY_20000 = Resources.toString(Resources.getResource(DatabaseLoader.class, "body_20000"), Charsets.UTF_8);
+			BODY_30000 = Resources.toString(Resources.getResource(DatabaseLoader.class, "body_30000"), Charsets.UTF_8);
+			BODY_40000 = Resources.toString(Resources.getResource(DatabaseLoader.class, "body_40000"), Charsets.UTF_8);
+			BODY_50000 = Resources.toString(Resources.getResource(DatabaseLoader.class, "body_50000"), Charsets.UTF_8);
+			BODY_60000 = Resources.toString(Resources.getResource(DatabaseLoader.class, "body_60000"), Charsets.UTF_8);
 		} catch (IOException e) {
 			throw new ExceptionInInitializerError(e);
 		}
 	}
 	
-	static final String BODY = BODY_100;
+	static final String BODY = BODY_60000;
 
 	void loadDatabase(int userPerMessageCountCount,
 					  int maximimMessagesPerUserCount,
 					  int recipientsPerMessageCount) throws SQLException {
-		try (Connection c = DriverManager.getConnection("jdbc:mysql://localhost/afluentes", "afluentes", "afluentes");
+		try (Connection c = DriverManager.getConnection("jdbc:mysql://localhost/afluentes_60000", "afluentes", "afluentes");
 				Statement s = c.createStatement()) {
 			c.setAutoCommit(true);
 			dropTables(c);
@@ -168,6 +180,6 @@ class DatabaseLoader {
 
 	public static void main(String args[]) throws ClassNotFoundException, SQLException {
 		Class.forName("com.mysql.jdbc.Driver");
-		new DatabaseLoader().loadDatabase(1000, 20, 1);
+		new DatabaseLoader().loadDatabase(10, 50, 1);
 	}	
 }

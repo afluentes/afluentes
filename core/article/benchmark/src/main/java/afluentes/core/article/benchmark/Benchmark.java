@@ -30,13 +30,10 @@ class Benchmark {
 
 		 	Marshaller marshaller = new Marshaller();
 
-/*		 	
-		 	execute("standard", maximumUserId, new StandardDao(ds), new StandardLoader(), marshaller);
-		 	execute("afluentes", maximumUserId, new AfluentesDao(ds, executor), new AfluentesLoader(), marshaller);
-*/
-		 	
 		 	AfluentesDao dao = new CallbackDao(ds, executor);
-		 	execute("callback", maximumUserId, dao, new CallbackLoader(dao), marshaller);
+		 	execute("callback", maximumUserId, dao, new CallbackLoader(dao), marshaller);		 	
+		 	execute("afluentes", maximumUserId, new AfluentesDao(ds, executor), new AfluentesLoader(), marshaller);
+		 	execute("standard", maximumUserId, new StandardDao(ds), new StandardLoader(), marshaller);
 		} finally {
 			if (executor != null) {
 				try {
@@ -61,21 +58,26 @@ class Benchmark {
 	}
 
 	void execute(String path, int maximumUserId, AbstractDao dao, ILoader loader, Marshaller marshaller) throws FileNotFoundException {
-		for (int i = 0; i < 2; ++i) {
+		for (int i = 0; i < 3; ++i) {
+			long t1 = System.currentTimeMillis();
+			
 			long[] ts = new long[1000];
 			long[] ns = new long[1000];
 
-			for (int userId = 1; userId <= 1; ++userId) {
-		 		long t = System.nanoTime();
+			for (int userId = 1; userId <= maximumUserId; ++userId) {
+		 		long t2 = System.nanoTime();
 		 		List<Message> messages = dao.getMessages(userId);
 		 		loader.loadMessages(messages);
-		 		System.out.println(marshaller.marshallMessages(messages));		 		
-		 		t = System.nanoTime() - t;
+		 		marshaller.marshallMessages(messages);		 		
+		 		t2 = System.nanoTime() - t2;
 
 		 		int index = messages.size(); 
-		 		ts[index] += t;
+		 		ts[index] += t2;
 		 		++ns[index];
 		 	}
+			
+			t1 = System.currentTimeMillis() - t1;
+			System.out.println(path + ": " + (t1 / 1000.0) + "s");
 			
 			try (PrintWriter writer = new PrintWriter(path + i + ".csv")) {
 				for (int index = 0; index < ts.length; ++index) {
