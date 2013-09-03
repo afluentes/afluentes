@@ -16,7 +16,7 @@ import afluentes.core.impl.SynchronousEvaluator3;
 class AfluentesLoader implements ILoader {
   @Override
   public void loadMessages(List<Message> messages) {
-    List<IEvaluation<Message>> evaluations = new ArrayList<>(messages.size());
+    List<IEvaluation<? extends Message>> evaluations = new ArrayList<>(messages.size());
     for (Message message : messages) {
       AfluentesSenderProxy senderProxy = (AfluentesSenderProxy) message.sender;
       AfluentesRecipientsProxy recipientsProxy = (AfluentesRecipientsProxy) message.recipients;
@@ -43,7 +43,7 @@ class AfluentesLoader implements ILoader {
 
 class Loader {
   void loadMessages(List<Message> messages) {
-    List<IEvaluation<Message>> evaluations = new ArrayList<>(messages.size());
+    List<IEvaluation<? extends Message>> evaluations = new ArrayList<>(messages.size());
     for (Message message : messages) {
       AfluentesSenderProxy senderProxy = (AfluentesSenderProxy) message.sender;
       AfluentesRecipientsProxy recipientsProxy = (AfluentesRecipientsProxy) message.recipients;

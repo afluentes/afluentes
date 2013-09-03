@@ -10,7 +10,8 @@
 	<packaging>pom</packaging>
 
     <modules>
-		<module>core</module>		
+		<module>core</module>
+		<module>loader</module>		
 		<module>parent</module>		
     </modules>
 </project>

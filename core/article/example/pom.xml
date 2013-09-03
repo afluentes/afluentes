@@ -19,7 +19,6 @@
 		<dependency>
 			<groupId>afluentes</groupId>
 			<artifactId>afluentes-core</artifactId>
-			<version>${project.version}</version>
 		</dependency>
 <!-- compile -->		
 	</dependencies>

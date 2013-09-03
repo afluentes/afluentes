@@ -12,7 +12,7 @@ class ReduceEvaluation<X1, Y> extends Evaluation<Y> {
 	private List<Evaluation<X1>> x1s;
 
 	@SuppressWarnings("unchecked")
-	ReduceEvaluation(final ISynchronousFunction1<List<X1>, Y> f, final List<? extends IEvaluation<X1>> x1s) {
+	ReduceEvaluation(final ISynchronousFunction1<List<X1>, Y> f, final List<? extends IEvaluation<? extends X1>> x1s) {
 		this.f = f;
 
     	if (x1s == null) {
@@ -23,7 +23,7 @@ class ReduceEvaluation<X1, Y> extends Evaluation<Y> {
 
 	@Override
 	protected boolean isEvaluable() {
-		for (Evaluation<X1> x1 : x1s) {
+		for (Evaluation<? extends X1> x1 : x1s) {
 			if (x1.status != EVALUATED) {
 				return false;
 			}
@@ -33,7 +33,7 @@ class ReduceEvaluation<X1, Y> extends Evaluation<Y> {
 
 	@Override
 	protected void pushArguments(Stack<Evaluation<?>> stack) {
-		for (Evaluation<X1> x1 : x1s) {
+		for (Evaluation<? extends X1> x1 : x1s) {
 			stack.push(x1);
 		}
 	}
@@ -41,7 +41,7 @@ class ReduceEvaluation<X1, Y> extends Evaluation<Y> {
 	@Override
 	protected void evaluate() {
 		List<X1> ys = new ArrayList<>(x1s.size());
-		for (Evaluation<X1> x1 : x1s) {
+		for (Evaluation<? extends X1> x1 : x1s) {
 			ys.add(x1.y);
 		}
 		try {

@@ -47,7 +47,7 @@ public static void main(String[] args) {
 		x1s.add(identity.y(new Constant<Integer>(3)));				
 */		
 
-List<IEvaluation<Integer>> x1s = new ArrayList<>();
+List<IEvaluation<? extends Integer>> x1s = new ArrayList<>();
 x1s.add(new Constant<Integer>(1));
 x1s.add(new Constant<Integer>(2));
 x1s.add(new Constant<Integer>(3));		

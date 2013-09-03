@@ -19,7 +19,7 @@ public class ReduceEvaluator<X1, Y> implements IReduceEvaluator<X1, Y> {
 	}
 
 	@Override
-	public IEvaluation<Y> y(final List<IEvaluation<X1\>> x1s) {
+	public IEvaluation<Y> y(final List<IEvaluation<? extends X1\>> x1s) {
 		return new ReduceEvaluation<>(f, x1s);
 	}
 }>>
