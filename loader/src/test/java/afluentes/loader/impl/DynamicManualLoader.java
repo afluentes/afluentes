@@ -6,10 +6,10 @@ import java.util.List;
 import afluentes.core.api.IEvaluation;
 import afluentes.core.api.IEvaluator1;
 import afluentes.core.api.IReduce;
-import afluentes.core.api.IReduceEvaluator2;
+import afluentes.core.api.IReduceFlatEvaluator;
 import afluentes.core.api.ISynchronousFunction1;
 import afluentes.core.impl.Constant;
-import afluentes.core.impl.ReduceEvaluator2;
+import afluentes.core.impl.ReduceFlatEvaluator;
 import afluentes.core.impl.SynchronousEvaluator1;
 import afluentes.loader.api.IEvaluationHolder;
 import afluentes.loader.api.ILoader;
@@ -21,7 +21,7 @@ class DymanicManualLoader implements ILoader<List<IMessage>> {
 	}
 
 /* ------------------------------------------------------------------------- */	
-	IReduceEvaluator2<IMessage, List<IMessage>> reduceMessages = reduceParents();
+	IReduceFlatEvaluator<IMessage, List<IMessage>> reduceMessages = reduceParents();
 
 	IEvaluator1<List<IMessage>, List<IEvaluation<? extends IMessage>>> mapMessages = 
 		new SynchronousEvaluator1<>(new ISynchronousFunction1<List<IMessage>, List<IEvaluation<? extends IMessage>>>() {
@@ -59,13 +59,13 @@ class DymanicManualLoader implements ILoader<List<IMessage>> {
 			}		
 		};
 		
-	IReduceEvaluator2<Object, IMessage> reduceMessage = reduceChild();
+	IReduceFlatEvaluator<Object, IMessage> reduceMessage = reduceChild();
 /* ------------------------------------------------------------------------- */
 		
 		
 		
 /* ------------------------------------------------------------------------- */				
-	IReduceEvaluator2<IUser, List<IUser>> reduceUsers = reduceParents();
+	IReduceFlatEvaluator<IUser, List<IUser>> reduceUsers = reduceParents();
 
 	IEvaluator1<List<IUser>, List<IEvaluation<? extends IUser>>> mapUsers = 
 		new SynchronousEvaluator1<>(new ISynchronousFunction1<List<IUser>, List<IEvaluation<? extends IUser>>>() {
@@ -95,13 +95,13 @@ class DymanicManualLoader implements ILoader<List<IMessage>> {
 			}		
 		};
 
-	IReduceEvaluator2<Object, IUser> reduceUser = reduceChild();
+	IReduceFlatEvaluator<Object, IUser> reduceUser = reduceChild();
 /* ------------------------------------------------------------------------- */		
 		
 
 		
 /* ------------------------------------------------------------------------- */		
-	IReduceEvaluator2<IFile, List<IFile>> reduceFiles = reduceParents();
+	IReduceFlatEvaluator<IFile, List<IFile>> reduceFiles = reduceParents();
 		
 	IEvaluator1<List<IFile>, List<IEvaluation<? extends IFile>>> mapFiles = 
 		new SynchronousEvaluator1<>(new ISynchronousFunction1<List<IFile>, List<IEvaluation<? extends IFile>>>() {
@@ -131,11 +131,11 @@ class DymanicManualLoader implements ILoader<List<IMessage>> {
 			}		
 		};		
 
-	IReduceEvaluator2<Object, IFile> reduceFile = reduceChild();		
+	IReduceFlatEvaluator<Object, IFile> reduceFile = reduceChild();		
 /* ------------------------------------------------------------------------- */
 
-	private <Parent> IReduceEvaluator2<Parent, List<Parent>> reduceParents() {
-		return new ReduceEvaluator2<>(new IReduce<Parent, List<Parent>>() {
+	private <Parent> IReduceFlatEvaluator<Parent, List<Parent>> reduceParents() {
+		return new ReduceFlatEvaluator<>(new IReduce<Parent, List<Parent>>() {
 			@Override
 			public List<Parent> y(List<Parent> parents) {
 				return parents;
@@ -143,8 +143,8 @@ class DymanicManualLoader implements ILoader<List<IMessage>> {
 		});
 	}
 			
-	private <Child> IReduceEvaluator2<Object, Child> reduceChild() {
-		return new ReduceEvaluator2<>(new IReduce<Object, Child>() {
+	private <Child> IReduceFlatEvaluator<Object, Child> reduceChild() {
+		return new ReduceFlatEvaluator<>(new IReduce<Object, Child>() {
 			@Override
 			public Child y(List<Object> x1) {
 				return (Child) x1.get(0);

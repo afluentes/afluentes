@@ -7,12 +7,12 @@ import java.util.Stack;
 import afluentes.core.api.IEvaluation;
 import afluentes.core.api.ISynchronousFunction1;
 
-class ReduceEvaluation2<X1, Y> extends Evaluation<Y> {
+class ReduceFlatEvaluation<X1, Y> extends Evaluation<Y> {
 	private final ISynchronousFunction1<List<X1>, Y> f;
 	private Evaluation<? extends List<Evaluation<? extends X1>>> x1s;
 
 	@SuppressWarnings("unchecked")
-	ReduceEvaluation2(final ISynchronousFunction1<List<X1>, Y> f, final IEvaluation<List<IEvaluation<? extends X1>>> x1s) {
+	ReduceFlatEvaluation(final ISynchronousFunction1<List<X1>, Y> f, final IEvaluation<? extends List<? extends IEvaluation<? extends X1>>> x1s) {
 		this.f = f;
 
     	if (x1s == null) {
