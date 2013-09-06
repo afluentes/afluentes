@@ -96,7 +96,7 @@
   	</build>
 
 	<dependencyManagement>
-		<dependencies>		
+		<dependencies>		            		
 			<dependency>
 				<groupId>com.google.guava</groupId>
 				<artifactId>guava</artifactId>
@@ -113,7 +113,13 @@
 				<groupId>commons-io</groupId>
 				<artifactId>commons-io</artifactId>
 				<version>2.4</version>
-			</dependency>			
+			</dependency>	
+
+			<dependency>
+				<groupId>commons-beanutils</groupId>
+				<artifactId>commons-beanutils</artifactId>
+				<version>1.8.3</version>
+			</dependency>
 
 			<dependency>
 				<groupId>mysql</groupId>

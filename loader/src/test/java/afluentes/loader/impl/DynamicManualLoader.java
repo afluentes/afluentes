@@ -6,10 +6,10 @@ import java.util.List;
 import afluentes.core.api.IEvaluation;
 import afluentes.core.api.IEvaluator1;
 import afluentes.core.api.IReduce;
-import afluentes.core.api.IReduceEvaluator;
+import afluentes.core.api.IReduceEvaluator2;
 import afluentes.core.api.ISynchronousFunction1;
 import afluentes.core.impl.Constant;
-import afluentes.core.impl.ReduceEvaluator;
+import afluentes.core.impl.ReduceEvaluator2;
 import afluentes.core.impl.SynchronousEvaluator1;
 import afluentes.loader.api.IEvaluationHolder;
 import afluentes.loader.api.ILoader;
@@ -17,16 +17,11 @@ import afluentes.loader.api.ILoader;
 class DymanicManualLoader implements ILoader<List<IMessage>> {
 	@Override
 	public void load(IEvaluation<List<IMessage>> root) {
-		reduceMessages.y(mapMessages.y(root)).y().y();
+		reduceMessages.y(mapMessages.y(root)).y();
 	}
-								
-	IEvaluator1<List<IEvaluation<? extends IMessage>>, IEvaluation<List<IMessage>>> reduceMessages = 
-		new SynchronousEvaluator1<>(new ReduceEvaluator<>(new IReduce<IMessage, List<IMessage>>() {
-			@Override
-			public List<IMessage> y(List<IMessage> messages) {
-				return messages;
-			}
-		})); 
+
+/* ------------------------------------------------------------------------- */	
+	IReduceEvaluator2<IMessage, List<IMessage>> reduceMessages = reduceParents();
 
 	IEvaluator1<List<IMessage>, List<IEvaluation<? extends IMessage>>> mapMessages = 
 		new SynchronousEvaluator1<>(new ISynchronousFunction1<List<IMessage>, List<IEvaluation<? extends IMessage>>>() {
@@ -34,29 +29,126 @@ class DymanicManualLoader implements ILoader<List<IMessage>> {
 			public List<IEvaluation<? extends IMessage>> y(List<IMessage> messages) {
 				List<IEvaluation<? extends IMessage>> evaluations = new ArrayList<>();
 				for (IMessage message : messages) {
-					MessageImpl messageImpl = (MessageImpl) message;
-					IEvaluationHolder<IUser> sender = (IEvaluationHolder<IUser>) messageImpl.getSender();					
-					IEvaluationHolder<List<IUser>> recipients = (IEvaluationHolder<List<IUser>>) messageImpl.getRecipients();					
-					IEvaluationHolder<List<IFile>> files = (IEvaluationHolder<List<IFile>>) messageImpl.getFiles();
+					evaluations.add(reduceMessage.y(new Constant<>(getMessageEvaluations.y(message))));
+				}
+				return evaluations;
+			}
+		});
 
-					List<IEvaluation<?>> childEvaluations = new ArrayList<>();
-					childEvaluations.add(new Constant<>(messageImpl));
-					childEvaluations.add(sender.getEvaluation());
-					childEvaluations.add(recipients.getEvaluation());
-					childEvaluations.add(files.getEvaluation());
+	ISynchronousFunction1<IMessage, List<IEvaluation<?>>> getMessageEvaluations = 
+		new ISynchronousFunction1<IMessage, List<IEvaluation<?>>>() {
+			@Override
+			public List<IEvaluation<?>> y(IMessage x1) {
+				List<IEvaluation<?>> evaluations = new ArrayList<>();
 
-					IEvaluation<IMessage> childEvaluation = loadMessage.y(childEvaluations);
-					evaluations.add(childEvaluation);
+				MessageImpl message = (MessageImpl) x1;
+				evaluations.add(new Constant<>(message));
+				
+				IEvaluationHolder<IUser> sender = (IEvaluationHolder<IUser>) message.getSender();
+				IEvaluation<List<IEvaluation<?>>> evals = new SynchronousEvaluator1<>(getUserEvaluations).y(sender.getEvaluation());
+				reduceUser.y(evals);
+				evaluations.add(sender.getEvaluation());
+				
+				IEvaluationHolder<List<IUser>> recipients = (IEvaluationHolder<List<IUser>>) message.getRecipients();
+				evaluations.add(reduceUsers.y(mapUsers.y(recipients.getEvaluation())));
+
+				IEvaluationHolder<List<IFile>> files = (IEvaluationHolder<List<IFile>>) message.getFiles();				
+				evaluations.add(reduceFiles.y(mapFiles.y(files.getEvaluation())));
+
+				return evaluations;
+			}		
+		};
+		
+	IReduceEvaluator2<Object, IMessage> reduceMessage = reduceChild();
+/* ------------------------------------------------------------------------- */
+		
+		
+		
+/* ------------------------------------------------------------------------- */				
+	IReduceEvaluator2<IUser, List<IUser>> reduceUsers = reduceParents();
+
+	IEvaluator1<List<IUser>, List<IEvaluation<? extends IUser>>> mapUsers = 
+		new SynchronousEvaluator1<>(new ISynchronousFunction1<List<IUser>, List<IEvaluation<? extends IUser>>>() {
+			@Override
+			public List<IEvaluation<? extends IUser>> y(List<IUser> users) {
+				List<IEvaluation<? extends IUser>> evaluations = new ArrayList<>();
+				for (IUser user : users) {
+					evaluations.add(reduceUser.y(new Constant<>(getUserEvaluations.y(user))));
+				}
+				return evaluations;
+			}
+		});
+
+	ISynchronousFunction1<IUser, List<IEvaluation<?>>> getUserEvaluations = 
+		new ISynchronousFunction1<IUser, List<IEvaluation<?>>>() {
+			@Override
+			public List<IEvaluation<?>> y(IUser x1) {
+				List<IEvaluation<?>> evaluations = new ArrayList<>();
+
+				UserImpl userImpl = (UserImpl) x1;
+				evaluations.add(new Constant<>(x1));
+
+				IEvaluationHolder<IPicture> picture = (IEvaluationHolder<IPicture>) userImpl.getPicture();
+				evaluations.add(picture.getEvaluation());
+
+				return evaluations;
+			}		
+		};
+
+	IReduceEvaluator2<Object, IUser> reduceUser = reduceChild();
+/* ------------------------------------------------------------------------- */		
+		
+
+		
+/* ------------------------------------------------------------------------- */		
+	IReduceEvaluator2<IFile, List<IFile>> reduceFiles = reduceParents();
+		
+	IEvaluator1<List<IFile>, List<IEvaluation<? extends IFile>>> mapFiles = 
+		new SynchronousEvaluator1<>(new ISynchronousFunction1<List<IFile>, List<IEvaluation<? extends IFile>>>() {
+			@Override
+			public List<IEvaluation<? extends IFile>> y(List<IFile> files) {
+				List<IEvaluation<? extends IFile>> evaluations = new ArrayList<>();
+				for (IFile file : files) {
+					evaluations.add(reduceFile.y(new Constant<>(getFileEvaluations.y(file))));
 				}
 				return evaluations;
 			}
 		});
 		
-	IReduceEvaluator<Object, IMessage> loadMessage = 
-		new ReduceEvaluator<>(new IReduce<Object, IMessage>() {
+	ISynchronousFunction1<IFile, List<IEvaluation<?>>> getFileEvaluations = 
+		new ISynchronousFunction1<IFile, List<IEvaluation<?>>>() {
 			@Override
-			public IMessage y(List<Object> x1) {
-				return (IMessage) x1.get(0);
+			public List<IEvaluation<?>> y(IFile x1) {
+				List<IEvaluation<?>> evaluations = new ArrayList<>();
+
+				FileImpl fileImpl = (FileImpl) x1;
+				evaluations.add(new Constant<>(fileImpl));
+				
+				IEvaluationHolder<IMediaType> mediaType = (IEvaluationHolder<IMediaType>) fileImpl.getMediaType();					
+				evaluations.add(mediaType.getEvaluation());
+
+				return evaluations;
+			}		
+		};		
+
+	IReduceEvaluator2<Object, IFile> reduceFile = reduceChild();		
+/* ------------------------------------------------------------------------- */
+
+	private <Parent> IReduceEvaluator2<Parent, List<Parent>> reduceParents() {
+		return new ReduceEvaluator2<>(new IReduce<Parent, List<Parent>>() {
+			@Override
+			public List<Parent> y(List<Parent> parents) {
+				return parents;
 			}
-		});	
+		});
+	}
+			
+	private <Child> IReduceEvaluator2<Object, Child> reduceChild() {
+		return new ReduceEvaluator2<>(new IReduce<Object, Child>() {
+			@Override
+			public Child y(List<Object> x1) {
+				return (Child) x1.get(0);
+			}
+		});		
+	}			
 }

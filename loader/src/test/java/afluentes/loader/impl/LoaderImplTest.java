@@ -12,8 +12,9 @@ public class LoaderImplTest {
 		Dao dao = new Dao();
 		IEvaluation<List<IMessage>> messages = dao.getMessages.y();
 		ILoader<List<IMessage>> loader = new LoaderImpl<>(List.class, ".{sender.picture, recipients.picture, files.{mediaType}}");
-		loader.load(messages);
+//		loader.load(messages);
 		
-		new StaticManualLoader().load(messages);
+//		new StaticManualLoader().load(messages);
+		new DymanicManualLoader().load(messages);
 	}
 }

@@ -46,7 +46,7 @@ class StaticManualLoader implements ILoader<List<IMessage>> {
 						sender.getEvaluation(),
 						recipients.getEvaluation(),
 						files.getEvaluation()
-					);					
+					);
 					evaluations.add(evaluation);
 				}
 				return evaluations;
