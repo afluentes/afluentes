@@ -1,46 +1,24 @@
 package afluentes.loader.impl;
 
-import java.util.List;
-
-import org.antlr.runtime.ANTLRStringStream;
-import org.antlr.runtime.CharStream;
-import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.RecognitionException;
-import org.antlr.runtime.tree.CommonTree;
 
 import afluentes.core.api.IEvaluation;
+import afluentes.core.api.IEvaluator1;
 import afluentes.loader.api.ILoader;
 
-public class LoaderImpl<Y> implements ILoader<Y> {
-	private final Class<? super Y> rootClass;
-	private final CommonTree route;
+import com.google.common.reflect.TypeToken;
 
-	public LoaderImpl(Class<? super Y> rootClass, String route) throws RecognitionException {
-		if (rootClass == null) {
-			throw new IllegalArgumentException("rootClass == null");
-		}
-		if (route == null) {
-			throw new IllegalArgumentException("route == null");
-		}		
-		this.rootClass = rootClass;
+public abstract class LoaderImpl<Y> implements ILoader<Y> {
+	private IEvaluator1<Y, Y> load;
 
-		CharStream input = new ANTLRStringStream(route);
-		LoaderLexer lexer = new LoaderLexer(input);
-		CommonTokenStream tokens = new CommonTokenStream(lexer);
-		LoaderParser parser = new LoaderParser(tokens);
-		this.route = parser.start().tree;
+	public LoaderImpl(String route) throws RecognitionException {
+		TypeToken<Y> token = new TypeToken<Y>(getClass()) {};
+		Compiler<Y> compiler = new Compiler<>(); 
+		load = compiler.compile(token, route);
 	}
 	
 	@Override
 	public void load(IEvaluation<Y> root) {
-		load(root, rootClass, route);
-	}
-
-	private void load(Object node, Class<?> nodeClass, CommonTree route) {
-		if (List.class.isAssignableFrom(nodeClass)) {
-			System.out.println("Lista");
-		} else {
-			System.out.println("Objeto");
-		}
+		load.y(root).y();
 	}
 }

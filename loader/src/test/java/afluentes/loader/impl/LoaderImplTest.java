@@ -11,10 +11,10 @@ public class LoaderImplTest {
 	public static void main(String[] args) throws RecognitionException {
 		Dao dao = new Dao();
 		IEvaluation<List<IMessage>> messages = dao.getMessages.y();
-		ILoader<List<IMessage>> loader = new LoaderImpl<>(List.class, ".{sender.picture, recipients.picture, files.{mediaType}}");
-//		loader.load(messages);
-		
+		ILoader<List<IMessage>> loader = new LoaderImpl<List<IMessage>>(".{sender.picture, recipients.picture, files.{mediaType}}") {};
+		loader.load(messages);
+				
 //		new StaticManualLoader().load(messages);
-		new DymanicManualLoader().load(messages);
+//		new DymanicManualLoader().load(messages);
 	}
 }

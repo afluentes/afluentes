@@ -53,9 +53,13 @@ class Dao {
 				public void run() {
 					System.out.println("getUser(" + userId + ")");
 					
+					PictureProxy picture = new PictureProxy();
+					picture.evaluation = getPicture.y(new Constant<Integer>(1));
+					
 					UserImpl user = new UserImpl();
 					user.identifier = userId;
-
+					user.picture = picture;
+					
 					callback.y(user);
 				}
 			}).start();
