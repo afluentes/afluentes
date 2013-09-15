@@ -143,11 +143,17 @@ class Compiler<Root> {
 
 				Node node = (Node) x1;
 				ys.add(new Constant<>(node));
-				
+
 				for (int i = 0; i < readChilds.length; ++i) {
 					try {
-						IEvaluationHolder<?> holder = (IEvaluationHolder<?>) readChilds[i].invoke(x1, (Object[]) null);
-						IEvaluation evaluation = holder.getEvaluation();
+						IEvaluation evaluation;
+						Object child = readChilds[i].invoke(x1, (Object[]) null);
+						if (child instanceof IEvaluationHolder<?>) {
+							IEvaluationHolder<?> holder = (IEvaluationHolder<?>) child; 
+							evaluation = holder.getEvaluation();
+						} else {
+							evaluation = new Constant<>(child);
+						}
 						ys.add(loadChilds[i].y(evaluation));
 					} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 						throw new RuntimeException(e);

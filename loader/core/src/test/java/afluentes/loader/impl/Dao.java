@@ -114,10 +114,15 @@ class Dao {
 				@Override
 				public void run() {
 					System.out.println("getFiles(" + messageId + ")");
-					
+
 					MediaTypeProxy mediaType = new MediaTypeProxy();
 					mediaType.evaluation = getMediaType.y(new Constant<Integer>(1));
 
+/*					
+					MediaTypeImpl mediaType = new MediaTypeImpl();
+					mediaType.identifier = 1;
+*/
+					
 					FileImpl file = new FileImpl();
 					file.identifier = 1;
 					file.mediaType = mediaType;
