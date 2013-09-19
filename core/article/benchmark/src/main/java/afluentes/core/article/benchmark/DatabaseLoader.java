@@ -40,12 +40,12 @@ class DatabaseLoader {
 		}
 	}
 	
-	static final String BODY = BODY_60000;
+	static final String BODY = BODY_1000;
 
 	void loadDatabase(int userPerMessageCountCount,
 					  int maximimMessagesPerUserCount,
 					  int recipientsPerMessageCount) throws SQLException {
-		try (Connection c = DriverManager.getConnection("jdbc:mysql://localhost/afluentes_60000", "afluentes", "afluentes");
+		try (Connection c = DriverManager.getConnection("jdbc:mysql://localhost/afluentes", "afluentes", "afluentes");
 				Statement s = c.createStatement()) {
 			c.setAutoCommit(true);
 			dropTables(c);

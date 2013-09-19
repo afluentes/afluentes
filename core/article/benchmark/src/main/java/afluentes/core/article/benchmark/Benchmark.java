@@ -30,10 +30,14 @@ class Benchmark {
 
 		 	Marshaller marshaller = new Marshaller();
 
-		 	AfluentesDao dao = new CallbackDao(ds, executor);
+		 	AfluentesDao dao = new CallbackDao(ds, executor);		 
+		 	execute("batch", maximumUserId, new BatchDao(ds, executor), new AfluentesLoader(), marshaller);		 	
+
+/*		 	
 		 	execute("callback", maximumUserId, dao, new CallbackLoader(dao), marshaller);		 	
 		 	execute("afluentes", maximumUserId, new AfluentesDao(ds, executor), new AfluentesLoader(), marshaller);
 		 	execute("standard", maximumUserId, new StandardDao(ds), new StandardLoader(), marshaller);
+*/		 	
 		} finally {
 			if (executor != null) {
 				try {
@@ -66,7 +70,7 @@ class Benchmark {
 
 			for (int userId = 1; userId <= maximumUserId; ++userId) {
 		 		long t2 = System.nanoTime();
-		 		List<Message> messages = dao.getMessages(userId);
+		 		List<Message> messages = dao.getSentMessageList(userId);
 		 		loader.loadMessages(messages);
 		 		marshaller.marshallMessages(messages);		 		
 		 		t2 = System.nanoTime() - t2;

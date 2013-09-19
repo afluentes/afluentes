@@ -139,7 +139,7 @@ class StandardRecipientsProxy extends AbstractRecipientsProxy {
 	@Override
 	List<IUser> getRecipients() {
 		if (recipients == null) {
-			recipients = dao.getRecipients(messageId);
+			recipients = dao.getMessageRecipientList(messageId);
 		}
 		return recipients;
 	}

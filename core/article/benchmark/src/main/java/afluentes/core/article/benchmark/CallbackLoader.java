@@ -34,7 +34,7 @@ class CallbackLoader implements ILoader {
 				}
 			});
 			
-			dao.getRecipientsFn.y(recipientsProxy.messageId, new ICallback<List<IUser>>() {
+			dao.getMessageRecipientListFn.y(recipientsProxy.messageId, new ICallback<List<IUser>>() {
 				@Override
 				public void y(List<IUser> recipients) {
 					recipientsProxy.recipients = recipients;
