@@ -28,13 +28,19 @@ import com.google.common.base.Joiner;
 
 abstract class AbstractDao {
 	static final boolean DEBUG = false;
+	static final boolean DEBUG_SQL = true;
+	static final boolean DEBUG_SLEEP = false;
 
 	static void debug(String sql) {
 		if (DEBUG) {
-			System.out.println(sql);
-			try {
-				Thread.sleep(500);
-			} catch (InterruptedException e) {}
+			if (DEBUG_SQL) {
+				System.out.println(sql);
+			}
+			if (DEBUG_SLEEP) {
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {}
+			}
 		}
 	}
 
@@ -46,17 +52,22 @@ abstract class AbstractDao {
 
 	List<Message> getSentMessageList(int senderId) {
 		String query = getSelectMessageQuery("SENDER_ID = " + senderId);
+		long t = System.nanoTime();
 		try (Connection c = ds.getConnection();
 				Statement s = c.createStatement();
 				ResultSet rs = s.executeQuery(query)) {
 			return getMessageList(rs);
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
+		} finally {
+			t = System.nanoTime() - t;
+			debug(t + ";" + query);
 		}
 	}
 	
 	String getSelectMessageQuery(String predicate) {
-		return "select ID, SUBJECT, BODY, SENDER_ID from MESSAGE where " + predicate; 
+//		return "select ID, SUBJECT, BODY, SENDER_ID from MESSAGE where " + predicate; 
+		return "select ID, SUBJECT, SENDER_ID from MESSAGE where " + predicate;
 	}	
 
 	List<Message> getMessageList(ResultSet rs) throws SQLException {
@@ -77,7 +88,7 @@ abstract class AbstractDao {
 		Message message = new Message();
 		message.id = rs.getInt("ID");
 		message.subject = rs.getString("SUBJECT");
-		message.body = rs.getString("BODY");		
+//		message.body = rs.getString("BODY");		
 		message.sender = sender;
 		return message;
 	}
@@ -87,8 +98,8 @@ abstract class AbstractDao {
 	abstract void setRecipientsProxies(List<Message> messageList);
 
 	IUser getUser(int userId) {
-		String query = getSelectUserQuery("ID = " + userId);
-		debug(query);
+		String query = getSelectUserQuery("ID = " + userId);		
+		long t = System.nanoTime();
 		try (Connection c = ds.getConnection();
 				Statement s = c.createStatement();
 				ResultSet rs = s.executeQuery(query)) {
@@ -99,6 +110,9 @@ abstract class AbstractDao {
 			}
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
+		} finally {
+			t = System.nanoTime() - t;
+			debug(t + ";" + query);
 		}
 	}
 	
@@ -120,16 +134,17 @@ abstract class AbstractDao {
 		} else {
 			predicate = "ID in (" + Joiner.on(", ").join(userIdList) + ")";
 		}
-		String query = getSelectUserQuery(predicate); 
-		debug(query);
+		String query = getSelectUserQuery(predicate);
+		long t = System.nanoTime();		
 		try (Connection c = ds.getConnection();
 				Statement s = c.createStatement();
 				ResultSet rs = s.executeQuery(query)) {
 			return getUserMap(rs);
 		} catch (SQLException e) {
-			System.out.println(query);
-			e.printStackTrace();
 			throw new RuntimeException(e);
+		} finally {
+			t = System.nanoTime() - t;
+			debug(t + ";" + query);
 		}
 	}
 		
@@ -144,14 +159,17 @@ abstract class AbstractDao {
 	
 	List<IUser> getMessageRecipientList(int messageId) {
 		String query = getSelectMessageRecipientQuery("MESSAGE_RECIPIENT.MESSAGE_ID = " + messageId);
-		debug(query);
+		long t = System.nanoTime();
 		try (Connection c = ds.getConnection();
 				Statement s = c.createStatement();
 				ResultSet rs = s.executeQuery(query)) {
 			return getUserList(rs);
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
-		}		
+		} finally {
+			t = System.nanoTime() - t;
+			debug(t + ";" + query);
+		}
 	}
 
 	String getSelectMessageRecipientQuery(String predicate) {
@@ -175,13 +193,16 @@ abstract class AbstractDao {
 			predicate = "MESSAGE_RECIPIENT.MESSAGE_ID in (" + Joiner.on(", ").join(messageIdList) + ")";
 		}
 		String query = getSelectMessageRecipientQuery(predicate); 		
-		debug(query);
+		long t = System.nanoTime();
 		try (Connection c = ds.getConnection();
 				Statement s = c.createStatement();
 				ResultSet rs = s.executeQuery(query)) {
 			return getMessageRecipientListMap(rs);
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
+		} finally {
+			t = System.nanoTime() - t;
+			debug(t + ";" + query);
 		}
 	}
 
@@ -336,7 +357,7 @@ abstract class BatchDao extends AbstractDao {
 		this.getUserMapAsyncFn = new IAsynchronousFunction1<List<Integer>, Map<Integer, IUser>>() {
 			@Override
 			public void y(final List<Integer> userIdList, final ICallback<Map<Integer, IUser>> callback) {
-				executor.execute(new Runnable() {
+				executor.execute(new Runnable() {					
 					@Override
 					public void run() {
 						Map<Integer, IUser> userMap = null;
@@ -347,7 +368,16 @@ abstract class BatchDao extends AbstractDao {
 						}
 						callback.y(userMap);
 					}					
-				});				
+				});					
+/*				
+				Map<Integer, IUser> userMap = null;
+				try {
+					userMap = getUserMap(userIdList);
+				} catch (Throwable t) {
+					callback.t(t);
+				}
+				callback.y(userMap);
+*/
 			}
 		};
 		
@@ -380,6 +410,15 @@ abstract class BatchDao extends AbstractDao {
 						callback.y(messageRecipientListMap);
 					}
 				});
+/*
+				Map<Integer, List<IUser>> messageRecipientListMap = null;
+				try {
+					messageRecipientListMap = getMessageRecipientListMap(messageIdList); 					
+				} catch (Throwable t) {
+					callback.t(t);
+				}
+				callback.y(messageRecipientListMap);
+*/
 			}
 		};				
 		

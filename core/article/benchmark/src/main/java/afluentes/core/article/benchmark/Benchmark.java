@@ -20,9 +20,9 @@ class Benchmark {
 		ExecutorService executor = null;
 		try {
 			ds = new BoneCPDataSource();
-//		 	ds.setDriverClass("com.mysql.jdbc.Driver");
-		 	ds.setDriverClass("org.mariadb.jdbc.Driver");			
-		 	ds.setJdbcUrl("jdbc:mysql://localhost/afluentes_1000");
+			ds.setDriverClass("com.mysql.jdbc.Driver");
+//		 	ds.setDriverClass("org.mariadb.jdbc.Driver");			
+		 	ds.setJdbcUrl("jdbc:mysql://192.168.1.3/afluentes_100");
 		 	ds.setUsername("afluentes");
 		 	ds.setPassword("afluentes");
 		 	ds.setMaxConnectionsPerPartition(100);
@@ -50,9 +50,16 @@ class Benchmark {
 			 	execute("asyncBatch" + i, maximumUserId, new AsyncBatchDao(ds, executor, i), new AfluentesLoader(), marshaller);		 		
 		 	}		 	
 */
-		 	
-		 	execute("asyncBatch", maximumUserId, new AsyncBatchDao(ds, executor, 5), new AfluentesLoader(), marshaller);		 	
-		 	execute("syncBatch", maximumUserId, new SyncBatchDao(ds, executor, 100), new AfluentesLoader(), marshaller);
+
+/*		 	
+		 	AfluentesDao dao = new CallbackDao(ds, executor);
+			execute("standard", maximumUserId, new StandardDao(ds), new StandardLoader(), marshaller);
+			execute("callback", maximumUserId, dao, new CallbackLoader(dao), marshaller);
+			execute("afluentes", maximumUserId, new AfluentesDao(ds, executor), new AfluentesLoader(), marshaller);
+*/
+
+			execute("asyncBatch", maximumUserId, new AsyncBatchDao(ds, executor, 100), new AfluentesLoader(), marshaller);
+			execute("syncBatch", maximumUserId, new SyncBatchDao(ds, executor, 100), new AfluentesLoader(), marshaller);
 		} finally {
 			if (executor != null) {
 				try {
@@ -83,9 +90,10 @@ class Benchmark {
 			long[] ts = new long[1000];
 			long[] ns = new long[1000];
 
-			for (int userId = 1; userId <= maximumUserId; ++userId) {
+			for (int userId = 0; userId < UserIdLists.USER_ID_LIST_100_MESSAGES.length; ++userId) {
+//			for (int userId = 1; userId <= maximumUserId; ++userId) {
 		 		long t2 = System.nanoTime();
-		 		List<Message> messages = dao.getSentMessageList(userId);
+		 		List<Message> messages = dao.getSentMessageList(UserIdLists.USER_ID_LIST_100_MESSAGES[userId]);
 		 		loader.loadMessages(messages);
 		 		marshaller.marshallMessages(messages);		 		
 		 		t2 = System.nanoTime() - t2;
