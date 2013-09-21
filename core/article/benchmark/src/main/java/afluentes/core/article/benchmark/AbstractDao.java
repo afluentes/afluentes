@@ -21,6 +21,7 @@ import afluentes.core.api.ISynchronousFunction1;
 import afluentes.core.api.ISynchronousFunction2;
 import afluentes.core.impl.AsynchronousEvaluator1;
 import afluentes.core.impl.Constant;
+import afluentes.core.impl.SynchronousEvaluator1;
 import afluentes.core.impl.SynchronousEvaluator2;
 
 import com.google.common.base.Joiner;
@@ -126,6 +127,8 @@ abstract class AbstractDao {
 				ResultSet rs = s.executeQuery(query)) {
 			return getUserMap(rs);
 		} catch (SQLException e) {
+			System.out.println(query);
+			e.printStackTrace();
 			throw new RuntimeException(e);
 		}
 	}
@@ -302,9 +305,9 @@ class CallbackDao extends AfluentesDao {
 	}
 }
 
-class BatchDao extends AbstractDao {
-	static final int BATCH_SIZE = 2;
-
+abstract class BatchDao extends AbstractDao {
+	int batchSize;
+	
 	ISynchronousFunction1<List<Integer>, Map<Integer, IUser>> getUserMapSyncFn;
 	IAsynchronousFunction1<List<Integer>, Map<Integer, IUser>> getUserMapAsyncFn;
 	IEvaluator1<List<Integer>, Map<Integer, IUser>> getUserMap;
@@ -319,16 +322,18 @@ class BatchDao extends AbstractDao {
 	ISynchronousFunction2<Map<Integer, List<IUser>>, Integer, List<IUser>> getMessageRecipientListFn;	
 	IEvaluator2<Map<Integer, List<IUser>>, Integer, List<IUser>> getMessageRecipientList;
 
-	BatchDao(final DataSource ds, final ExecutorService executor) {
+	BatchDao(final DataSource ds, final ExecutorService executor, int batchSize) {
 		super(ds);
 		
-		getUserMapSyncFn = new ISynchronousFunction1<List<Integer>, Map<Integer, IUser>>() {
+		this.batchSize = batchSize;
+		
+		this.getUserMapSyncFn = new ISynchronousFunction1<List<Integer>, Map<Integer, IUser>>() {
 			@Override
 			public Map<Integer, IUser> y(List<Integer> userIdList) {
 				return getUserMap(userIdList);
 			}
 		};
-		getUserMapAsyncFn = new IAsynchronousFunction1<List<Integer>, Map<Integer, IUser>>() {
+		this.getUserMapAsyncFn = new IAsynchronousFunction1<List<Integer>, Map<Integer, IUser>>() {
 			@Override
 			public void y(final List<Integer> userIdList, final ICallback<Map<Integer, IUser>> callback) {
 				executor.execute(new Runnable() {
@@ -345,24 +350,22 @@ class BatchDao extends AbstractDao {
 				});				
 			}
 		};
-//		getUserMap = new SynchronousEvaluator1<>(getUserMapSyncFn);
-		getUserMap = new AsynchronousEvaluator1<>(getUserMapAsyncFn);
 		
-		getUserFn = new ISynchronousFunction2<Map<Integer, IUser>, Integer, IUser>() {
+		this.getUserFn = new ISynchronousFunction2<Map<Integer, IUser>, Integer, IUser>() {
 			@Override
 			public IUser y(Map<Integer, IUser> userMap, Integer userId) {
 				return userMap.get(userId);
 			}
 		};
-		getUser = new SynchronousEvaluator2<>(getUserFn);
+		this.getUser = new SynchronousEvaluator2<>(getUserFn);
 		
-		getMessageRecipientListMapSyncFn = new ISynchronousFunction1<List<Integer>, Map<Integer, List<IUser>>>() {
+		this.getMessageRecipientListMapSyncFn = new ISynchronousFunction1<List<Integer>, Map<Integer, List<IUser>>>() {
 			@Override
 			public Map<Integer, List<IUser>> y(List<Integer> messageIdList) {
 				return getMessageRecipientListMap(messageIdList);
 			}			
 		};
-		getMessageRecipientListMapAsyncFn = new IAsynchronousFunction1<List<Integer>, Map<Integer, List<IUser>>>() {
+		this.getMessageRecipientListMapAsyncFn = new IAsynchronousFunction1<List<Integer>, Map<Integer, List<IUser>>>() {
 			@Override
 			public void y(final List<Integer> messageIdList, final ICallback<Map<Integer, List<IUser>>> callback) {
 				executor.execute(new Runnable() {
@@ -378,17 +381,15 @@ class BatchDao extends AbstractDao {
 					}
 				});
 			}
-		};
-//		getMessageRecipientListMap = new SynchronousEvaluator1<>(getMessageRecipientListMapSyncFn);
-		getMessageRecipientListMap = new AsynchronousEvaluator1<>(getMessageRecipientListMapAsyncFn);		
+		};				
 		
-		getMessageRecipientListFn = new ISynchronousFunction2<Map<Integer, List<IUser>>, Integer, List<IUser>>() {
+		this.getMessageRecipientListFn = new ISynchronousFunction2<Map<Integer, List<IUser>>, Integer, List<IUser>>() {
 			@Override
 			public List<IUser> y(Map<Integer, List<IUser>> messageRecipientListMap, Integer messageId) {
 				return messageRecipientListMap.get(messageId);
 			}
 		};	
-		getMessageRecipientList = new SynchronousEvaluator2<>(getMessageRecipientListFn);			
+		this.getMessageRecipientList = new SynchronousEvaluator2<>(getMessageRecipientListFn);			
 	}
 
 	@Override
@@ -398,7 +399,7 @@ class BatchDao extends AbstractDao {
 			Message message = messageList.get(i);
 			Integer senderId = message.sender.getId(); 
 			senderIdList.add(senderId);
-			if (senderIdList.size() == BATCH_SIZE) {
+			if (senderIdList.size() == batchSize) {
 				setSenderProxies(messageList, i, senderIdList);
 				senderIdList = new ArrayList<>();
 			}
@@ -423,7 +424,7 @@ class BatchDao extends AbstractDao {
 			Message message = messageList.get(i);
 			Integer messageId = message.id;
 			messageIdList.add(messageId);
-			if (messageIdList.size() == BATCH_SIZE) {
+			if (messageIdList.size() == batchSize) {
 				setRecipientsProxies(messageList, i, messageIdList);
 				messageIdList = new ArrayList<>();
 			}
@@ -439,5 +440,23 @@ class BatchDao extends AbstractDao {
 			IEvaluation<List<IUser>> messageRecipientList = getMessageRecipientList.y(messageRecipientListMap, new Constant<Integer>(messageId));
 			message.recipients = new AfluentesRecipientsProxy(messageRecipientList);
 		}		
+	}
+}
+
+class SyncBatchDao extends BatchDao {
+	SyncBatchDao(DataSource ds, ExecutorService executor, int batchSize) {
+		super(ds, executor, batchSize);
+
+		getUserMap = new SynchronousEvaluator1<>(getUserMapSyncFn);
+		getMessageRecipientListMap = new SynchronousEvaluator1<>(getMessageRecipientListMapSyncFn);		
+	}
+}
+
+class AsyncBatchDao extends BatchDao {
+	AsyncBatchDao(DataSource ds, ExecutorService executor, int batchSize) {
+		super(ds, executor, batchSize);
+		
+		getUserMap = new AsynchronousEvaluator1<>(getUserMapAsyncFn);
+		getMessageRecipientListMap = new AsynchronousEvaluator1<>(getMessageRecipientListMapAsyncFn);
 	}
 }

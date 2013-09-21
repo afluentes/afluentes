@@ -26,11 +26,21 @@
 			<artifactId>bonecp-spring</artifactId>
 		</dependency>
 				
+<!--  				
 		<dependency>
 			<groupId>mysql</groupId>
 			<artifactId>mysql-connector-java</artifactId>
-		</dependency>            								
-		
+		</dependency>
+-->
+
+		<dependency>
+			<groupId>org.jumpmind.symmetric.jdbc</groupId>
+			<artifactId>mariadb-java-client</artifactId>
+			<version>1.1.5</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/lib/mariadb-java-client-1.1.5.jar</systemPath>
+		</dependency>								
+
 		<dependency>
 			<groupId>afluentes</groupId>
 			<artifactId>afluentes-core</artifactId>

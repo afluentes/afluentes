@@ -45,7 +45,7 @@ class DatabaseLoader {
 	void loadDatabase(int userPerMessageCountCount,
 					  int maximimMessagesPerUserCount,
 					  int recipientsPerMessageCount) throws SQLException {
-		try (Connection c = DriverManager.getConnection("jdbc:mysql://localhost/afluentes", "afluentes", "afluentes");
+		try (Connection c = DriverManager.getConnection("jdbc:mysql://localhost/afluentes_1000", "afluentes", "afluentes");
 				Statement s = c.createStatement()) {
 			c.setAutoCommit(true);
 			dropTables(c);
@@ -180,6 +180,6 @@ class DatabaseLoader {
 
 	public static void main(String args[]) throws ClassNotFoundException, SQLException {
 		Class.forName("com.mysql.jdbc.Driver");
-		new DatabaseLoader().loadDatabase(10, 50, 1);
+		new DatabaseLoader().loadDatabase(100, 100, 1);
 	}	
 }

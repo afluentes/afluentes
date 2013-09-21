@@ -20,24 +20,39 @@ class Benchmark {
 		ExecutorService executor = null;
 		try {
 			ds = new BoneCPDataSource();
-		 	ds.setJdbcUrl("jdbc:mysql://localhost/afluentes");
+//		 	ds.setDriverClass("com.mysql.jdbc.Driver");
+		 	ds.setDriverClass("org.mariadb.jdbc.Driver");			
+		 	ds.setJdbcUrl("jdbc:mysql://localhost/afluentes_1000");
 		 	ds.setUsername("afluentes");
 		 	ds.setPassword("afluentes");
+		 	ds.setMaxConnectionsPerPartition(100);
+		 	ds.setDefaultReadOnly(true);		 	
+		 	ds.setDefaultTransactionIsolation("READ_UNCOMMITTED");
+		 	ds.sanitize();
 		 	
 		 	int maximumUserId = getMaximumUserId(ds);
 
 		 	executor = Executors.newCachedThreadPool();
 
 		 	Marshaller marshaller = new Marshaller();
-
-		 	AfluentesDao dao = new CallbackDao(ds, executor);		 
-		 	execute("batch", maximumUserId, new BatchDao(ds, executor), new AfluentesLoader(), marshaller);		 	
-
+		 	
 /*		 	
-		 	execute("callback", maximumUserId, dao, new CallbackLoader(dao), marshaller);		 	
+		 	AfluentesDao dao = new CallbackDao(ds, executor);
+		 	execute("callback", maximumUserId, dao, new CallbackLoader(dao), marshaller);
 		 	execute("afluentes", maximumUserId, new AfluentesDao(ds, executor), new AfluentesLoader(), marshaller);
 		 	execute("standard", maximumUserId, new StandardDao(ds), new StandardLoader(), marshaller);
-*/		 	
+
+		 	execute("syncBatch1", maximumUserId, new SyncBatchDao(ds, executor, 1), new AfluentesLoader(), marshaller);
+		 	execute("asyncBatch1", maximumUserId, new AsyncBatchDao(ds, executor, 1), new AfluentesLoader(), marshaller);
+		 	
+		 	for (int i = 1; i <= 25; i += 1) {
+		 		execute("syncBatch" + i, maximumUserId, new SyncBatchDao(ds, executor, i), new AfluentesLoader(), marshaller);
+			 	execute("asyncBatch" + i, maximumUserId, new AsyncBatchDao(ds, executor, i), new AfluentesLoader(), marshaller);		 		
+		 	}		 	
+*/
+		 	
+		 	execute("asyncBatch", maximumUserId, new AsyncBatchDao(ds, executor, 5), new AfluentesLoader(), marshaller);		 	
+		 	execute("syncBatch", maximumUserId, new SyncBatchDao(ds, executor, 100), new AfluentesLoader(), marshaller);
 		} finally {
 			if (executor != null) {
 				try {
@@ -83,7 +98,7 @@ class Benchmark {
 			t1 = System.currentTimeMillis() - t1;
 			System.out.println(path + ": " + (t1 / 1000.0) + "s");
 			
-			try (PrintWriter writer = new PrintWriter(path + i + ".csv")) {
+			try (PrintWriter writer = new PrintWriter(path + "." + i + ".csv")) {
 				for (int index = 0; index < ts.length; ++index) {
 					if (ns[index] > 0) { 
 						writer.println(index + "\t" + ts[index] + "\t" + ns[index] + "\t" + (ts[index] / ns[index]));
@@ -93,8 +108,7 @@ class Benchmark {
 	 	}
 	}
 		
-	public static void main(String args[]) throws ClassNotFoundException, SQLException, FileNotFoundException {
-		Class.forName("com.mysql.jdbc.Driver");
+	public static void main(String args[]) throws FileNotFoundException, SQLException {
 		new Benchmark().execute();
 	}
 }
