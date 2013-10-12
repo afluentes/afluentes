@@ -145,4 +145,9 @@ class DymanicManualLoader implements ILoader<List<IMessage>> {
 			}
 		};
 	}
+
+	@Override
+	public void load(List<IMessage> root) {
+		load(new Constant<>(root));
+	}
 }

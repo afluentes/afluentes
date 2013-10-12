@@ -23,11 +23,11 @@ edgeList
 	;
 	
 edge
-	:	navigation
+	:	transition
 	|	ID
 	;
 	
-navigation
+transition
 	:	ID^ '.'! edgeList
 	;
 

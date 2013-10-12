@@ -4,6 +4,7 @@ import org.antlr.runtime.RecognitionException;
 
 import afluentes.core.api.IEvaluation;
 import afluentes.core.api.IEvaluator1;
+import afluentes.core.impl.Constant;
 import afluentes.loader.api.ILoader;
 
 import com.google.common.reflect.TypeToken;
@@ -20,6 +21,11 @@ public abstract class LoaderImpl<Y> implements ILoader<Y> {
 			throw new RuntimeException(e);
 		}
 	}
+	
+	@Override
+	public void load(Y root) {
+		load(new Constant<>(root));
+	}	
 	
 	@Override
 	public void load(IEvaluation<Y> root) {

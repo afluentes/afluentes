@@ -60,4 +60,9 @@ class StaticManualLoader implements ILoader<List<IMessage>> {
 				return x1;
 			}
 		});
+
+	@Override
+	public void load(List<IMessage> root) {
+		load(new Constant<>(root));
+	}
 }

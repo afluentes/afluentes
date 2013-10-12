@@ -18,7 +18,7 @@
 <!-- compile -->	
 		<dependency>
 			<groupId>afluentes</groupId>
-			<artifactId>afluentes-core</artifactId>
+			<artifactId>afluentes-loader-core</artifactId>
 		</dependency>
 <!-- compile -->		
 	</dependencies>
