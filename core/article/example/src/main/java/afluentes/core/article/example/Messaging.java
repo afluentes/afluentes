@@ -6,10 +6,8 @@ import afluentes.loader.api.ILoader;
 import afluentes.loader.impl.LoaderImpl;
 
 class User {
-  Picture picture;
+  File picture;
 }
-
-class Picture {}
 
 class File {
   MediaType mediaType;

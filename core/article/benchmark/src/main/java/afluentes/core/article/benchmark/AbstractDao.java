@@ -49,9 +49,15 @@ abstract class AbstractDao {
 	AbstractDao(final DataSource ds) {
 		this.ds = ds;
 	}
-
-	List<Message> getSentMessageList(int senderId) {
-		String query = getSelectMessageQuery("SENDER_ID = " + senderId);
+	
+	List<Message> getMessageList(List<Integer> messageIds) {
+		String predicate;
+		if (messageIds.size() == 1) {
+			predicate = "ID = " + messageIds.get(0);
+		} else {
+			predicate = "ID in (" + Joiner.on(", ").join(messageIds) + ")";
+		}
+		String query = getSelectMessageQuery(predicate);
 		long t = System.nanoTime();
 		try (Connection c = ds.getConnection();
 				Statement s = c.createStatement();
@@ -63,11 +69,10 @@ abstract class AbstractDao {
 			t = System.nanoTime() - t;
 			debug(t + ";" + query);
 		}
-	}
+	}	
 	
 	String getSelectMessageQuery(String predicate) {
-//		return "select ID, SUBJECT, BODY, SENDER_ID from MESSAGE where " + predicate; 
-		return "select ID, SUBJECT, SENDER_ID from MESSAGE where " + predicate;
+		return "select ID, SUBJECT, BODY, SENDER_ID from MESSAGE where " + predicate;
 	}	
 
 	List<Message> getMessageList(ResultSet rs) throws SQLException {
@@ -88,7 +93,7 @@ abstract class AbstractDao {
 		Message message = new Message();
 		message.id = rs.getInt("ID");
 		message.subject = rs.getString("SUBJECT");
-//		message.body = rs.getString("BODY");		
+		message.body = rs.getString("BODY");
 		message.sender = sender;
 		return message;
 	}
@@ -369,15 +374,6 @@ abstract class BatchDao extends AbstractDao {
 						callback.y(userMap);
 					}					
 				});					
-/*				
-				Map<Integer, IUser> userMap = null;
-				try {
-					userMap = getUserMap(userIdList);
-				} catch (Throwable t) {
-					callback.t(t);
-				}
-				callback.y(userMap);
-*/
 			}
 		};
 		
@@ -410,15 +406,6 @@ abstract class BatchDao extends AbstractDao {
 						callback.y(messageRecipientListMap);
 					}
 				});
-/*
-				Map<Integer, List<IUser>> messageRecipientListMap = null;
-				try {
-					messageRecipientListMap = getMessageRecipientListMap(messageIdList); 					
-				} catch (Throwable t) {
-					callback.t(t);
-				}
-				callback.y(messageRecipientListMap);
-*/
 			}
 		};				
 		

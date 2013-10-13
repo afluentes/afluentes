@@ -1,6 +1,5 @@
 package afluentes.core.article.benchmark;
 
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -8,85 +7,152 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Random;
 
-import com.google.common.base.Charsets;
-import com.google.common.io.Resources;
+import com.google.common.base.Joiner;
+import com.softabar.lipsum.LoremIpsum4J;
 
 class DatabaseLoader {
 	static final int MAXIMUM_BATCH_SIZE = 1000;
 	
-	static final String BODY_100;
-	static final String BODY_500;
-	static final String BODY_1000;
-	static final String BODY_10000;
-	static final String BODY_20000;
-	static final String BODY_30000;
-	static final String BODY_40000;
-	static final String BODY_50000;
-	static final String BODY_60000;
+	String driver;
+	String url;
+	String user;
+	String password;
+	int userCount;	
+	int messageCount;
+	int bodyLength;
+	int recipientCount;
+	int fileCount;
 
-	static {
-		try {
-			BODY_100 = Resources.toString(Resources.getResource(DatabaseLoader.class, "body_100"), Charsets.UTF_8);
-			BODY_500 = Resources.toString(Resources.getResource(DatabaseLoader.class, "body_500"), Charsets.UTF_8);
-			BODY_1000 = Resources.toString(Resources.getResource(DatabaseLoader.class, "body_1000"), Charsets.UTF_8);
-			BODY_10000 = Resources.toString(Resources.getResource(DatabaseLoader.class, "body_10000"), Charsets.UTF_8);
-			BODY_20000 = Resources.toString(Resources.getResource(DatabaseLoader.class, "body_20000"), Charsets.UTF_8);
-			BODY_30000 = Resources.toString(Resources.getResource(DatabaseLoader.class, "body_30000"), Charsets.UTF_8);
-			BODY_40000 = Resources.toString(Resources.getResource(DatabaseLoader.class, "body_40000"), Charsets.UTF_8);
-			BODY_50000 = Resources.toString(Resources.getResource(DatabaseLoader.class, "body_50000"), Charsets.UTF_8);
-			BODY_60000 = Resources.toString(Resources.getResource(DatabaseLoader.class, "body_60000"), Charsets.UTF_8);
-		} catch (IOException e) {
-			throw new ExceptionInInitializerError(e);
-		}
-	}
-	
-	static final String BODY = BODY_1000;
-
-	void loadDatabase(int userPerMessageCountCount,
-					  int maximimMessagesPerUserCount,
-					  int recipientsPerMessageCount) throws SQLException {
-		try (Connection c = DriverManager.getConnection("jdbc:mysql://localhost/afluentes_1000", "afluentes", "afluentes");
+	void loadDatabase() throws ClassNotFoundException, SQLException {
+		Class.forName(driver);
+		try (Connection c = DriverManager.getConnection(url, user, password);
 				Statement s = c.createStatement()) {
-			c.setAutoCommit(true);
-			dropTables(c);
-			createTables(c);
-			
+			dropTables(s);
+			createTables(s);
+
 			c.setAutoCommit(false);
-			loadUsers(c, userPerMessageCountCount, maximimMessagesPerUserCount);
-			loadMessages(c, userPerMessageCountCount, maximimMessagesPerUserCount);
-			loadMessagesRecipients(c, userPerMessageCountCount, maximimMessagesPerUserCount, recipientsPerMessageCount);
+			loadMediaType(c);			
+			loadFile(c);
+			loadUser(c);		
+			loadMessage(c);
+			loadMessageRecipient(c);
+			loadMessageFile(c);
 		}
 	}
 	
-	void dropTables(Connection c) throws SQLException {
-		try (Statement s = c.createStatement()) {
-			s.executeUpdate("drop table if exists MESSAGE_RECIPIENT");
-			s.executeUpdate("drop table if exists MESSAGE");
-			s.executeUpdate("drop table if exists USER");					
-		}
-	}
-	
-	void createTables(Connection c) throws SQLException {
-		try (Statement s = c.createStatement()) {
-			s.executeUpdate("create table USER (ID int auto_increment, NAME varchar(100) not null, primary key(ID))");
-			s.executeUpdate("create table MESSAGE (ID int auto_increment, SUBJECT varchar(100), BODY text, SENDER_ID int, primary key(ID), foreign key (SENDER_ID) references USER(ID))");
-			s.executeUpdate("create table MESSAGE_RECIPIENT (MESSAGE_ID int, RECIPIENT_ID int, primary key (MESSAGE_ID, RECIPIENT_ID), foreign key (MESSAGE_ID) references MESSAGE(ID), foreign key (RECIPIENT_ID) references USER(ID))");
-		}			
+	void dropTables(Statement s) throws SQLException {
+		s.executeUpdate("drop table if exists MESSAGE_RECIPIENT");
+		s.executeUpdate("drop table if exists MESSAGE_FILE");
+		s.executeUpdate("drop table if exists MESSAGE");
+		s.executeUpdate("drop table if exists USER");
+		s.executeUpdate("drop table if exists FILE");
+		s.executeUpdate("drop table if exists MEDIA_TYPE");
 	}
 
-	void loadUsers(Connection c, int userPerMessageCountCount, int maximimMessagesPerUserCount) throws SQLException {		
-		long t = System.currentTimeMillis();
-		System.out.println("Loading users");
-		try (PreparedStatement s = c.prepareStatement("insert into USER (NAME) values (?)")) {
-			int userId = 0;
-			int batchSize = 0;
-			for (int i = 0; i < userPerMessageCountCount; ++i) {
-				for (int j = 0; j <= maximimMessagesPerUserCount; ++j) {				
-					++userId;
-					String userName = "User " + userId;
-					s.setString(1, userName);
+	void createTables(Statement s) throws SQLException {
+		s.executeUpdate("create table MEDIA_TYPE (ID int auto_increment, TYPE varchar(100), SUBTYPE varchar(100), primary key(ID))");
+		s.executeUpdate("create table FILE (ID int auto_increment, NAME varchar(100), MEDIA_TYPE_ID int, primary key(ID), foreign key (MEDIA_TYPE_ID) references MEDIA_TYPE(ID))");
+		s.executeUpdate("create table USER (ID int auto_increment, NAME varchar(100), PICTURE_ID int, primary key(ID), foreign key (PICTURE_ID) references FILE(ID))");
+		s.executeUpdate("create table MESSAGE (ID int auto_increment, SUBJECT varchar(100), BODY text, SENDER_ID int, primary key(ID), foreign key (SENDER_ID) references USER(ID))");
+		s.executeUpdate("create table MESSAGE_RECIPIENT (MESSAGE_ID int, RECIPIENT_ID int, foreign key (MESSAGE_ID) references MESSAGE(ID), foreign key (RECIPIENT_ID) references USER(ID))");
+		s.executeUpdate("create table MESSAGE_FILE (MESSAGE_ID int, FILE_ID int, foreign key (MESSAGE_ID) references MESSAGE(ID), foreign key (FILE_ID) references FILE(ID))");		
+	}
+	
+	void loadMediaType(Connection c) throws SQLException {
+		try (PreparedStatement s = c.prepareStatement("insert into MEDIA_TYPE (TYPE, SUBTYPE) values (?, ?)")) {
+			s.setString(1, "image");
+			s.setString(2, "jpeg");
+			s.executeUpdate();
+			c.commit();
+		}
+	}
+	
+	void loadFile(Connection c) throws SQLException {
+		int batchSize = 0;		
+		try (PreparedStatement s = c.prepareStatement("insert into FILE (NAME, MEDIA_TYPE_ID) values (?, 1)")) {
+			for (int i = 1; i <= userCount; ++i) {
+				s.setString(1, "Picture " + i);
+				s.addBatch();
+				if (batchSize == MAXIMUM_BATCH_SIZE - 1) {
+					s.executeBatch();
+					c.commit();
+					batchSize = 0;
+				} else {
+					++batchSize;
+				}
+			}
+			if (batchSize > 0) {
+				s.executeBatch();
+				c.commit();
+			}
+			
+			for (int i = 1; i <= messageCount; ++i) {
+				for (int j = 0; j < fileCount; ++j) {
+					s.setString(1, "File " + i);
 					s.addBatch();
-					if (batchSize == MAXIMUM_BATCH_SIZE) {
+					if (batchSize == MAXIMUM_BATCH_SIZE - 1) {
+						s.executeBatch();
+						c.commit();
+						batchSize = 0;
+					} else {
+						++batchSize;
+					}
+				}
+			}
+			if (batchSize > 0) {
+				s.executeBatch();
+				c.commit();
+			}			
+		}		
+	}
+	
+	void loadUser(Connection c) throws SQLException {
+		try (PreparedStatement s = c.prepareStatement("insert into USER (NAME, PICTURE_ID) values (?, ?)")) {
+			for (int i = 1; i <= userCount; ++i) {
+				s.setString(1, "User " + i);
+				s.setInt(2, i);
+				s.addBatch();
+			}
+			s.executeBatch();
+			c.commit();
+		}		
+	}
+		
+	void loadMessage(Connection c) throws SQLException {
+		String body = Joiner.on("").join(new LoremIpsum4J().getBytes(bodyLength));
+		Random senderIdRandom = new Random();
+		try (PreparedStatement s = c.prepareStatement("insert into MESSAGE (SUBJECT, BODY, SENDER_ID) values (?, ?, ?)")) {
+			int batchSize = 0;
+			for (int i = 1; i <= messageCount; ++i) {
+				s.setString(1, "User " + i);
+				s.setString(2, body);
+				s.setInt(3, senderIdRandom.nextInt(userCount) + 1);
+				s.addBatch();
+				if (batchSize == MAXIMUM_BATCH_SIZE - 1) {
+					s.executeBatch();
+					c.commit();
+					batchSize = 0;
+				} else {
+					++batchSize;
+				}
+			}
+			if (batchSize > 0) {
+				s.executeBatch();
+				c.commit();
+			}
+		}		
+	}
+	
+	void loadMessageRecipient(Connection c) throws SQLException {
+		Random recipientIdRandom = new Random();
+		try (PreparedStatement s = c.prepareStatement("insert into MESSAGE_RECIPIENT (MESSAGE_ID, RECIPIENT_ID) values (?, ?)")) {
+			int batchSize = 0;
+			for (int i = 1; i <= messageCount; ++i) {
+				for (int j = 0; j < recipientCount; ++j) {
+					s.setInt(1, i);
+					s.setInt(2, recipientIdRandom.nextInt(userCount) + 1);
+					s.addBatch();
+					if (batchSize == MAXIMUM_BATCH_SIZE - 1) {
 						s.executeBatch();
 						c.commit();
 						batchSize = 0;
@@ -100,72 +166,23 @@ class DatabaseLoader {
 				c.commit();
 			}
 		}
-		t = System.currentTimeMillis() - t;
-		System.out.println("Users loaded in " + t + "ms");
 	}
 	
-	void loadMessages(Connection c, int userPerMessageCountCount, int maximimMessagesPerUserCount) throws SQLException {
-		long t = System.currentTimeMillis();
-		System.out.println("Loading messages");
-		try (PreparedStatement s = c.prepareStatement("insert into MESSAGE (SUBJECT, BODY, SENDER_ID) values (?, ?, ?)")) {
-			int messageSenderId = 0;						
-			int messageId = 0;
-			int batchSize = 0;			
-			for (int i = 0; i < userPerMessageCountCount; ++i) {				
-				for (int j = 0; j <= maximimMessagesPerUserCount; ++j) {
-					++messageSenderId;
-					for (int k = 0; k < j; ++k) {
-						++messageId;
-						String messageSubject = "Message " + messageId;
-						String messageBody = BODY;					
-						s.setString(1, messageSubject);
-						s.setString(2, messageBody);
-						s.setInt(3, messageSenderId);
-						s.addBatch();
-						if (batchSize == MAXIMUM_BATCH_SIZE) {
-							s.executeBatch();
-							c.commit();
-							batchSize = 0;
-						} else {
-							++batchSize;
-						}						
-					}
-				}
-			}
-			if (batchSize > 0) {
-				s.executeBatch();
-				c.commit();				
-			}
-		}
-		t = System.currentTimeMillis() - t;
-		System.out.println("Messages loaded in " + t + "ms");
-	}
-
-	void loadMessagesRecipients(Connection c, int userPerMessageCountCount, int maximimMessagesPerUserCount, int recipientsPerMessageCount) throws SQLException {
-		long t = System.currentTimeMillis();
-		System.out.println("Loading messages recipients");
-		try (PreparedStatement s = c.prepareStatement("insert into MESSAGE_RECIPIENT(MESSAGE_ID, RECIPIENT_ID) values (?, ?)")) {
-			Random messageRecipientIdRandom = new Random();
-			int userCount = userPerMessageCountCount * (maximimMessagesPerUserCount + 1);
-			int messageId = 0;
+	void loadMessageFile(Connection c) throws SQLException {		
+		try (PreparedStatement s = c.prepareStatement("insert into MESSAGE_FILE (MESSAGE_ID, FILE_ID) values (?, ?)")) {
+			int fileId = userCount;
 			int batchSize = 0;
-			for (int i = 0; i < userPerMessageCountCount; ++i) {
-				for (int j = 0; j <= maximimMessagesPerUserCount; ++j) {
-					for (int k = 0; k < j; ++k) {
-						++messageId;
-						for (int x = 0; x < recipientsPerMessageCount; ++x) {					
-							int messageRecipientId = messageRecipientIdRandom.nextInt(userCount) + 1;
-							s.setInt(1, messageId);
-							s.setInt(2, messageRecipientId);
-							s.addBatch();
-							if (batchSize == MAXIMUM_BATCH_SIZE) {
-								s.executeBatch();
-								c.commit();
-								batchSize = 0;
-							} else {
-								++batchSize;
-							}						
-						}						
+			for (int i = 1; i <= messageCount; ++i) {
+				for (int j = 0; j < recipientCount; ++j) {
+					s.setInt(1, i);
+					s.setInt(2, ++fileId);
+					s.addBatch();
+					if (batchSize == MAXIMUM_BATCH_SIZE - 1) {
+						s.executeBatch();
+						c.commit();
+						batchSize = 0;
+					} else {
+						++batchSize;
 					}
 				}
 			}
@@ -174,12 +191,19 @@ class DatabaseLoader {
 				c.commit();
 			}
 		}
-		t = System.currentTimeMillis() - t;
-		System.out.println("Messages loaded in " + t + "ms");		
 	}	
-
+	
 	public static void main(String args[]) throws ClassNotFoundException, SQLException {
-		Class.forName("com.mysql.jdbc.Driver");
-		new DatabaseLoader().loadDatabase(100, 100, 1);
+		DatabaseLoader loader = new DatabaseLoader();
+		loader.driver = "com.mysql.jdbc.Driver";
+		loader.url = "jdbc:mysql://localhost/afluentes";
+		loader.user = "afluentes";
+		loader.password = "afluentes";
+		loader.userCount = 100;
+		loader.messageCount = 1000 * loader.userCount;
+		loader.bodyLength = 100;
+		loader.recipientCount = 1;
+		loader.fileCount = 1;
+		loader.loadDatabase();
 	}	
 }

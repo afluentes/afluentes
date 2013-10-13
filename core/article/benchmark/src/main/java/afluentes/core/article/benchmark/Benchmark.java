@@ -1,12 +1,13 @@
 package afluentes.core.article.benchmark;
 
 import java.io.FileNotFoundException;
-import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -22,7 +23,7 @@ class Benchmark {
 			ds = new BoneCPDataSource();
 			ds.setDriverClass("com.mysql.jdbc.Driver");
 //		 	ds.setDriverClass("org.mariadb.jdbc.Driver");			
-		 	ds.setJdbcUrl("jdbc:mysql://192.168.1.3/afluentes_100");
+		 	ds.setJdbcUrl("jdbc:mysql://localhost/afluentes");
 		 	ds.setUsername("afluentes");
 		 	ds.setPassword("afluentes");
 		 	ds.setMaxConnectionsPerPartition(100);
@@ -30,7 +31,7 @@ class Benchmark {
 		 	ds.setDefaultTransactionIsolation("READ_UNCOMMITTED");
 		 	ds.sanitize();
 		 	
-		 	int maximumUserId = getMaximumUserId(ds);
+		 	int maximumMessageId = getMaximumMessageId(ds);
 
 		 	executor = Executors.newCachedThreadPool();
 
@@ -58,8 +59,8 @@ class Benchmark {
 			execute("afluentes", maximumUserId, new AfluentesDao(ds, executor), new AfluentesLoader(), marshaller);
 */
 
-			execute("asyncBatch", maximumUserId, new AsyncBatchDao(ds, executor, 100), new AfluentesLoader(), marshaller);
-			execute("syncBatch", maximumUserId, new SyncBatchDao(ds, executor, 100), new AfluentesLoader(), marshaller);
+		 	execute("async", maximumMessageId, new AsyncBatchDao(ds, executor, 20), new AfluentesLoader(), marshaller);
+		 	execute("sync", maximumMessageId, new SyncBatchDao(ds, executor, 100), new AfluentesLoader(), marshaller);
 		} finally {
 			if (executor != null) {
 				try {
@@ -73,47 +74,40 @@ class Benchmark {
 			}
 		}
 	}
-	
-	int getMaximumUserId(DataSource ds) throws SQLException {
+
+	int getMaximumMessageId(DataSource ds) throws SQLException {
 		try (Connection c = ds.getConnection();
 				Statement s = c.createStatement();
-				ResultSet rs = s.executeQuery("select max(ID) from USER")) {
+				ResultSet rs = s.executeQuery("select max(ID) from MESSAGE")) {
 			rs.next();
 			return rs.getInt(1);
 		}
 	}
 
-	void execute(String path, int maximumUserId, AbstractDao dao, ILoader loader, Marshaller marshaller) throws FileNotFoundException {
-		for (int i = 0; i < 3; ++i) {
-			long t1 = System.currentTimeMillis();
-			
-			long[] ts = new long[1000];
-			long[] ns = new long[1000];
-
-			for (int userId = 0; userId < UserIdLists.USER_ID_LIST_100_MESSAGES.length; ++userId) {
-//			for (int userId = 1; userId <= maximumUserId; ++userId) {
-		 		long t2 = System.nanoTime();
-		 		List<Message> messages = dao.getSentMessageList(UserIdLists.USER_ID_LIST_100_MESSAGES[userId]);
+	void execute(String path, int maximumMessageId, AbstractDao dao, ILoader loader, Marshaller marshaller) {
+		int outerInteractionCount = 3;
+		int innerInteractionCount = 1000;
+		int messageCount = 100;
+		for (int i = 0; i < outerInteractionCount; ++i) {
+			long totalTime = 0;
+			Random messageIdRandom = new Random(0);
+			for (int j = 0; j < innerInteractionCount; ++j) {
+				List<Integer> messageIds = new ArrayList<>();
+				for (int k = 0; k < messageCount; ++k) {
+					messageIds.add(messageIdRandom.nextInt(maximumMessageId) + 1);
+				}
+				long time = System.nanoTime();
+				List<Message> messages = dao.getMessageList(messageIds);						 		
 		 		loader.loadMessages(messages);
 		 		marshaller.marshallMessages(messages);		 		
-		 		t2 = System.nanoTime() - t2;
-
-		 		int index = messages.size(); 
-		 		ts[index] += t2;
-		 		++ns[index];
-		 	}
-			
-			t1 = System.currentTimeMillis() - t1;
-			System.out.println(path + ": " + (t1 / 1000.0) + "s");
-			
-			try (PrintWriter writer = new PrintWriter(path + "." + i + ".csv")) {
-				for (int index = 0; index < ts.length; ++index) {
-					if (ns[index] > 0) { 
-						writer.println(index + "\t" + ts[index] + "\t" + ns[index] + "\t" + (ts[index] / ns[index]));
-					}
-				}			
-			}			
-	 	}
+		 		time = System.nanoTime() - time;
+		 		totalTime += time;
+			}
+			double mean = totalTime;
+			mean /= innerInteractionCount;
+			mean /= 1000000;
+			System.out.println(mean);
+		}		
 	}
 		
 	public static void main(String args[]) throws FileNotFoundException, SQLException {
