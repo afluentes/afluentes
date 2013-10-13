@@ -195,6 +195,7 @@ class DatabaseLoader {
 	
 	public static void main(String args[]) throws ClassNotFoundException, SQLException {
 		DatabaseLoader loader = new DatabaseLoader();
+		loader.driver = "org.mariadb.jdbc.Driver";
 		loader.driver = "com.mysql.jdbc.Driver";
 		loader.url = "jdbc:mysql://localhost/afluentes";
 		loader.user = "afluentes";

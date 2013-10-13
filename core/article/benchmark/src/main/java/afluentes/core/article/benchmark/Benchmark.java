@@ -20,15 +20,15 @@ class Benchmark {
 		BoneCPDataSource ds = null;
 		ExecutorService executor = null;
 		try {
-			ds = new BoneCPDataSource();
+			ds = new BoneCPDataSource();			
+			ds.setDriverClass("org.mariadb.jdbc.Driver");
 			ds.setDriverClass("com.mysql.jdbc.Driver");
-//		 	ds.setDriverClass("org.mariadb.jdbc.Driver");			
 		 	ds.setJdbcUrl("jdbc:mysql://localhost/afluentes");
 		 	ds.setUsername("afluentes");
 		 	ds.setPassword("afluentes");
 		 	ds.setMaxConnectionsPerPartition(100);
-		 	ds.setDefaultReadOnly(true);		 	
-		 	ds.setDefaultTransactionIsolation("READ_UNCOMMITTED");
+//		 	ds.setDefaultReadOnly(true);		 	
+//		 	ds.setDefaultTransactionIsolation("READ_UNCOMMITTED");
 		 	ds.sanitize();
 		 	
 		 	int maximumMessageId = getMaximumMessageId(ds);
@@ -59,7 +59,7 @@ class Benchmark {
 			execute("afluentes", maximumUserId, new AfluentesDao(ds, executor), new AfluentesLoader(), marshaller);
 */
 
-		 	execute("async", maximumMessageId, new AsyncBatchDao(ds, executor, 20), new AfluentesLoader(), marshaller);
+		 	execute("async", maximumMessageId, new AsyncBatchDao(ds, executor, 50), new AfluentesLoader(), marshaller);
 		 	execute("sync", maximumMessageId, new SyncBatchDao(ds, executor, 100), new AfluentesLoader(), marshaller);
 		} finally {
 			if (executor != null) {
@@ -85,7 +85,7 @@ class Benchmark {
 	}
 
 	void execute(String path, int maximumMessageId, AbstractDao dao, ILoader loader, Marshaller marshaller) {
-		int outerInteractionCount = 3;
+		int outerInteractionCount = 5;
 		int innerInteractionCount = 1000;
 		int messageCount = 100;
 		for (int i = 0; i < outerInteractionCount; ++i) {
@@ -106,7 +106,7 @@ class Benchmark {
 			double mean = totalTime;
 			mean /= innerInteractionCount;
 			mean /= 1000000;
-			System.out.println(mean);
+			System.out.println(path + ": " + mean);
 		}		
 	}
 		
