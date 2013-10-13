@@ -1,9 +1,9 @@
 package afluentes.core.article.benchmark;
 
-class UserImpl implements IUser {
+class FileImpl implements IFile {
 	int id;
 	String name;
-
+	
 	@Override
 	public int getId() {
 		return id;

@@ -13,6 +13,11 @@ abstract class AbstractSenderProxy implements IUser {
 		return getSender().getName();
 	}
 	
+	@Override
+	public IFile getPicture() {
+		return getSender().getPicture();
+	}
+	
 	abstract IUser getSender();	
 }
 
@@ -80,5 +85,10 @@ class SenderProxy implements IUser {
 	
   IUser getSender() {
     return evaluation.y();
+  }
+
+  @Override
+  public IFile getPicture() {
+	return getSender().getPicture();
   }
 }

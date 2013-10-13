@@ -1,7 +1,6 @@
 package afluentes.core.article.benchmark;
 
-public interface IUser {
+public interface IFile {
 	int getId();
 	String getName();
-	IFile getPicture();
 }

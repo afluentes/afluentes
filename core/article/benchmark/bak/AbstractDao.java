@@ -102,6 +102,36 @@ abstract class AbstractDao {
 
 	abstract void setRecipientsProxies(List<Message> messageList);
 
+	IFile getFile(int fileId) {
+		String query = getSelectFileQuery("ID = " + fileId);		
+		long t = System.nanoTime();
+		try (Connection c = ds.getConnection();
+				Statement s = c.createStatement();
+				ResultSet rs = s.executeQuery(query)) {
+			if (rs.next()) {
+				return getFile(rs);
+			} else {
+				return null;
+			}
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		} finally {
+			t = System.nanoTime() - t;
+			debug(t + ";" + query);
+		}		
+	}
+	
+	String getSelectFileQuery(String predicate) {
+		return "select * from FILE where " + predicate;
+	}
+	
+	FileImpl getFile(ResultSet rs) throws SQLException {		
+		FileImpl file = new FileImpl();
+		file.id = rs.getInt("ID");
+		file.name = rs.getString("NAME");
+		return file;
+	}
+
 	IUser getUser(int userId) {
 		String query = getSelectUserQuery("ID = " + userId);		
 		long t = System.nanoTime();
@@ -109,7 +139,8 @@ abstract class AbstractDao {
 				Statement s = c.createStatement();
 				ResultSet rs = s.executeQuery(query)) {
 			if (rs.next()) {
-				return getUser(rs);
+				UserImpl user = getUser(rs);
+				return user;
 			} else {
 				return null;
 			}
@@ -125,10 +156,14 @@ abstract class AbstractDao {
 		return "select * from USER where " + predicate; 
 	}
 		
-	IUser getUser(ResultSet rs) throws SQLException {
+	UserImpl getUser(ResultSet rs) throws SQLException {
+		FileImpl picture = new FileImpl();
+		picture.id = rs.getInt("PICTURE_ID");
+		
 		UserImpl user = new UserImpl();
 		user.id = rs.getInt("ID");
-		user.name = rs.getString("NAME");		
+		user.name = rs.getString("NAME");
+		user.picture = picture;
 		return user;
 	}	
 	

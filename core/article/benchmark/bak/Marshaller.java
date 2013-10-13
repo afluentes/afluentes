@@ -6,15 +6,15 @@ import java.util.List;
 class Marshaller {
 	Marshaller() {}
 
-	String marshallMessages(List<? extends IMessage> messages) {
+	String marshallMessages(List<Message> messages) {
 		StringBuilder builder = new StringBuilder();	
 		appendMessages(builder, messages);
 		return builder.toString();
 	}
 
-	void appendMessages(StringBuilder builder, List<? extends IMessage> messages) {
+	void appendMessages(StringBuilder builder, List<Message> messages) {
 		builder.append('[');
-		for (Iterator<? extends IMessage> i = messages.iterator(); i.hasNext(); ) {
+		for (Iterator<Message> i = messages.iterator(); i.hasNext(); ) {
 			appendMessage(builder, i.next());
 			if (i.hasNext()) {
 				builder.append(',');
@@ -23,35 +23,35 @@ class Marshaller {
 		builder.append(']');
 	}
 	
-	void appendMessage(StringBuilder builder, IMessage message) {
+	void appendMessage(StringBuilder builder, Message message) {
 		builder.append('{');
 		
 		appendString(builder, "id");
 		builder.append(':');
-		appendInt(builder, message.getId());
+		appendInt(builder, message.id);
 		builder.append(',');
 
 		appendString(builder, "subject");
 		builder.append(':');
-		appendString(builder, message.getSubject());
+		appendString(builder, message.subject);
 		builder.append(',');
 
 		appendString(builder, "body");
 		builder.append(':');
-		appendString(builder, message.getBody());
+		appendString(builder, message.body);
 		builder.append(',');
 		
 		appendString(builder, "sender");
 		builder.append(':');
-		appendUser(builder, message.getSender());
+		appendUser(builder, message.sender);
 		builder.append(',');
 		
 		appendString(builder, "recipients");
 		builder.append(':');
-		appendUsers(builder, message.getRecipients());
+		appendUsers(builder, message.recipients);
 
 		builder.append("}");
-	}
+	}	
 		
 	void appendString(StringBuilder builder, String string) {
 		builder.append('\"');
@@ -74,12 +74,10 @@ class Marshaller {
 		appendString(builder, "name");
 		builder.append(':');
 		appendString(builder, user.getName());
-
-/*		
+		
 		appendString(builder, "picture");
 		builder.append(':');
 		appendFile(builder, user.getPicture());		
-*/
 		
 		builder.append('}');		
 	}
@@ -95,36 +93,13 @@ class Marshaller {
 		appendString(builder, "name");
 		builder.append(':');
 		appendString(builder, file.getName());
-		
-		appendString(builder, "mediaType");
-		builder.append(':');
-		appendMediaType(builder, file.getMediaType());		
 				
 		builder.append('}');				
 	}
 	
-	void appendMediaType(StringBuilder builder, IMediaType mediaType) {
-		builder.append('{');
-
-		appendString(builder, "id");
-		builder.append(':');
-		appendInt(builder, mediaType.getId());
-		builder.append(',');
-
-		appendString(builder, "type");
-		builder.append(':');
-		appendString(builder, mediaType.getType());
-		
-		appendString(builder, "subtype");
-		builder.append(':');
-		appendString(builder, mediaType.getSubtype());		
-				
-		builder.append('}');				
-	}	
-	
-	void appendUsers(StringBuilder builder, List<? extends IUser> users) {
+	void appendUsers(StringBuilder builder, List<IUser> users) {
 		builder.append('[');
-		for (Iterator<? extends IUser> i = users.iterator(); i.hasNext(); ) {
+		for (Iterator<IUser> i = users.iterator(); i.hasNext(); ) {
 			appendUser(builder, i.next());
 			if (i.hasNext()) {
 				builder.append(',');
