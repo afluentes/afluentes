@@ -53,59 +53,81 @@ class Compiler<Root> {
 	}
 	
 /*---------------------------------------------------------------------------*/	
-	private <Node> IEvaluator1<List<Node>, List<Node>> compileList(TypeToken<?> nodeToken, Tree nodeRoute) {		
-		final IReduceFlatEvaluator<Node, List<Node>> reduceNodes = new ReduceFlatEvaluator<>(new IReduce<Node, List<Node>>() {
-			@Override
-			public List<Node> y(List<Node> x1s) {
-				return x1s;
-			}
-		});
-		
-		final IReduceEvaluator<Object, Node> reduceNode = new ReduceEvaluator<>(this.<Node>reduceNode());
-		
-		final ISynchronousFunction1<Node, List<IEvaluation<?>>> getEvaluations = this.<Node>getEvaluations(nodeToken, nodeRoute);
-
-		final IEvaluator1<List<Node>, List<IEvaluation<? extends Node>>> mapNodes = new SynchronousEvaluator1<>(new ISynchronousFunction1<List<Node>, List<IEvaluation<? extends Node>>>() {
-			@Override
-			public List<IEvaluation<? extends Node>> y(List<Node> x1s) {
-				List<IEvaluation<? extends Node>> ys = new ArrayList<>();
-				for (Node x1 : x1s) {
-					ys.add(reduceNode.y(getEvaluations.y(x1)));
+	private <Node> IEvaluator1<List<Node>, List<Node>> compileList(TypeToken<?> nodeToken, Tree nodeRoute) {
+		if (nodeRoute.getChildCount() == 0) {
+			final IEvaluator1<List<Node>, List<Node>> loadNodes = new IEvaluator1<List<Node>, List<Node>>() {
+				@Override
+				public IEvaluation<List<Node>> y(IEvaluation<List<Node>> x1) {
+					return x1;
 				}
-				return ys;
-			}
-		});
-
-		final IEvaluator1<List<Node>, List<Node>> loadNodes = new IEvaluator1<List<Node>, List<Node>>() {
-			@Override
-			public IEvaluation<List<Node>> y(IEvaluation<List<Node>> x1) {
-				return reduceNodes.y(mapNodes.y(x1));
-			}
-		};
-
-		return loadNodes;
+			};
+			
+			return loadNodes;
+		} else {
+			final IReduceFlatEvaluator<Node, List<Node>> reduceNodes = new ReduceFlatEvaluator<>(new IReduce<Node, List<Node>>() {
+				@Override
+				public List<Node> y(List<Node> x1s) {
+					return x1s;
+				}
+			});
+			
+			final IReduceEvaluator<Object, Node> reduceNode = new ReduceEvaluator<>(this.<Node>reduceNode());
+			
+			final ISynchronousFunction1<Node, List<IEvaluation<?>>> getEvaluations = this.<Node>getEvaluations(nodeToken, nodeRoute);
+	
+			final IEvaluator1<List<Node>, List<IEvaluation<? extends Node>>> mapNodes = new SynchronousEvaluator1<>(new ISynchronousFunction1<List<Node>, List<IEvaluation<? extends Node>>>() {
+				@Override
+				public List<IEvaluation<? extends Node>> y(List<Node> x1s) {
+					List<IEvaluation<? extends Node>> ys = new ArrayList<>();
+					for (Node x1 : x1s) {
+						ys.add(reduceNode.y(getEvaluations.y(x1)));
+					}
+					return ys;
+				}
+			});
+	
+			final IEvaluator1<List<Node>, List<Node>> loadNodes = new IEvaluator1<List<Node>, List<Node>>() {
+				@Override
+				public IEvaluation<List<Node>> y(IEvaluation<List<Node>> x1) {
+					return reduceNodes.y(mapNodes.y(x1));
+				}
+			};
+	
+			return loadNodes;
+		}
 	}
 /*---------------------------------------------------------------------------*/
 	
 /*---------------------------------------------------------------------------*/	
-	private <Node> IEvaluator1<Node, Node> compileElement(TypeToken<?> nodeToken, final Tree nodeRoute) {				
-		final IReduceFlatEvaluator<Object, Node> reduceNode = new ReduceFlatEvaluator<>(new IReduce<Object, Node>() {
-			@Override
-			public Node y(List<Object> x1s) {
-				return (Node) x1s.get(0);
-			}
-		});		
-		
-		final IEvaluator1<Node, List<IEvaluation<?>>> getEvaluations = new SynchronousEvaluator1<>(this.<Node>getEvaluations(nodeToken, nodeRoute));
-		
-		final IEvaluator1<Node, Node> loadNode = new IEvaluator1<Node, Node>() {
-			@Override
-			public IEvaluation<Node> y(IEvaluation<Node> x1) {
-				return reduceNode.y(getEvaluations.y(x1));
-			}
-		};
-		
-		return loadNode;
+	private <Node> IEvaluator1<Node, Node> compileElement(TypeToken<?> nodeToken, final Tree nodeRoute) {
+		if (nodeRoute.getChildCount() == 0) {
+			final IEvaluator1<Node, Node> loadNode = new IEvaluator1<Node, Node>() {
+				@Override
+				public IEvaluation<Node> y(IEvaluation<Node> x1) {
+					return x1;
+				}
+			};
+			
+			return loadNode;						
+		} else {
+			final IReduceFlatEvaluator<Object, Node> reduceNode = new ReduceFlatEvaluator<>(new IReduce<Object, Node>() {
+				@Override
+				public Node y(List<Object> x1s) {
+					return (Node) x1s.get(0);
+				}
+			});		
+			
+			final IEvaluator1<Node, List<IEvaluation<?>>> getEvaluations = new SynchronousEvaluator1<>(this.<Node>getEvaluations(nodeToken, nodeRoute));
+			
+			final IEvaluator1<Node, Node> loadNode = new IEvaluator1<Node, Node>() {
+				@Override
+				public IEvaluation<Node> y(IEvaluation<Node> x1) {
+					return reduceNode.y(getEvaluations.y(x1));
+				}
+			};
+			
+			return loadNode;			
+		}
 	}
 /*---------------------------------------------------------------------------*/
 	
@@ -146,7 +168,7 @@ class Compiler<Root> {
 
 				for (int i = 0; i < readChilds.length; ++i) {
 					try {
-						IEvaluation evaluation;
+						IEvaluation evaluation;						
 						Object child = readChilds[i].invoke(x1, (Object[]) null);
 						if (child instanceof IEvaluationHolder<?>) {
 							IEvaluationHolder<?> holder = (IEvaluationHolder<?>) child; 
@@ -156,6 +178,8 @@ class Compiler<Root> {
 						}
 						ys.add(loadChilds[i].y(evaluation));
 					} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+						System.out.println(readChilds[i]);
+						System.out.println("Erro: " + x1.getClass());
 						throw new RuntimeException(e);
 					}
 				}
