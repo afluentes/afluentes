@@ -6,16 +6,27 @@ import afluentes.loader.api.ILoader;
 import afluentes.loader.impl.LoaderImpl;
 
 class User {
+  int id;
+  String name;
   File picture;
 }
 
 class File {
+  int id;
+  String name;
   MediaType mediaType;
 }
 
-class MediaType {}
+class MediaType {
+  int id;
+  String type;    // e.g. image
+  String subtype; // e.g. jpeg
+}
 
 class Message {
+  int id;
+  String subject;
+  String body;
   User sender;
   Collection<User> recipients;	
   Collection<File> files;	

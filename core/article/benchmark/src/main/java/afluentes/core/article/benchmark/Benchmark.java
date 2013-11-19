@@ -214,7 +214,7 @@ class Benchmark {
 		
 		int outerIterationCount = 10;
 		int innerIterationCount = 1000;
-		int messageCount = 50;
+		int messageCount = 100;
 		for (int i = 0; i < outerIterationCount; ++i) {
 			long totalTime = 0;
 			Random messageIdRandom = new Random(0);
