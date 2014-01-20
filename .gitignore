@@ -1,17 +1,17 @@
 ##
-# IntelliJ IDEA 
-##
-.idea
-*.iml
-
-##
 # Apache Maven
 ##
-target
+target/
 
 ##
 # Eclipse
 ##
-.settings
-.classpath
-.project
+*.classpath
+*.project
+*.settings
+
+##
+# IntelliJ IDEA 
+##
+*.idea
+*.iml
