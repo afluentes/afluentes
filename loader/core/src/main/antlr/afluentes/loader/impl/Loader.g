@@ -1,8 +1,8 @@
 grammar Loader;
 
 options {
-	output=AST;
-	ASTLabelType=CommonTree;
+	output = AST;
+	ASTLabelType = CommonTree;
 }
 
 @header {
@@ -13,25 +13,43 @@ options {
 	package afluentes.loader.impl;
 }
 
+@members {
+	protected void mismatch(IntStream input, int ttype, BitSet follow) throws RecognitionException {
+		throw new MismatchedTokenException(ttype, input);
+	}
+	
+	public void recoverFromMismatchedSet(IntStream input, RecognitionException e, BitSet follow) throws RecognitionException {
+		throw e;
+	}
+}
+
+@rulecatch {
+	catch (RecognitionException e) {
+		throw e;
+	}
+}
+
 start
-	:	'.'! edgeList
-	;
-
-edgeList
-	:	edge
-	|	'{'! edge (','! edge)* '}'!
+	:	traversal* path
 	;
 	
-edge
-	:	transition
-	|	ID
-	;
-	
-transition
-	:	ID^ '.'! edgeList
+traversal
+	:	(ID '='! path ';'!)
 	;
 
-ID  	
+path
+	:	step
+	|	'{'! step (','! step)* '}'!
+	;
+
+step
+	:	ID^
+	|	ID^ '.'! path
+	|	ID^ '('! ')'!
+	|	ID^ '('! step ')'!
+	;
+
+ID
 	:	('a'..'z'|'A'..'Z'|'_') ('a'..'z'|'A'..'Z'|'0'..'9'|'_')*
     ;
 

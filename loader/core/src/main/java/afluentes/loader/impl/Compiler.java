@@ -40,7 +40,7 @@ class Compiler<Root> {
 		LoaderParser parser = new LoaderParser(tokens);		
 		return compile(token, parser.start().tree);		
 	}
-	
+
 	private <Node> IEvaluator1<Node, Node> compile(TypeToken<?> token, Tree route) {		
 		if (LIST_TOKEN.isAssignableFrom(token)) {
 			ParameterizedType listType = (ParameterizedType) token.getType();
